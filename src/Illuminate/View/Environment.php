@@ -38,9 +38,7 @@ class Environment {
 	 */
 	public function make($view, array $data = array())
 	{
-		$data = array_merge($data, $this->shared);
-
-		return $this->engine->get($this, $this->view, $data);
+		return $this->engine->get($this, $view, array_merge($data, $this->shared));
 	}
 
 	/**
