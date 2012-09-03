@@ -122,12 +122,12 @@ abstract class FileBasedEngine {
 	}
 
 	/**
-	 * Format the given template name.
+	 * Format the given view name.
 	 *
 	 * @param  string  $name
 	 * @return string
 	 */
-	protected function formatTemplateName($name)
+	protected function formatViewName($name)
 	{
 		return str_replace('.', '/', $name).$this->extension;
 	}
