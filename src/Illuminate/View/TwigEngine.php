@@ -2,7 +2,7 @@
 
 use Twig_Environment;
 use Twig_LoaderInterface;
-use Illumiante\Filesystem;
+use Illuminate\Filesystem;
 
 class TwigEngine extends FileBasedEngine implements EngineInterface, Twig_LoaderInterface {
 
