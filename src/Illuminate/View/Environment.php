@@ -30,15 +30,17 @@ class Environment {
 	}
 
 	/**
-	 * Get a view instance for the given view.
+	 * Get a evaluated view contents for the given view.
 	 *
 	 * @param  string  $view
 	 * @param  array   $parameters
-	 * @return Illuminate\View\View
+	 * @return string
 	 */
 	public function make($view, array $data = array())
 	{
-		return new View($this->engine, $view, array_merge($data, $this->shared));
+		$data = array_merge($data, $this->shared);
+
+		return $this->engine->get($this, $this->view, $data);
 	}
 
 	/**
