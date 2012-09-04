@@ -12,4 +12,13 @@ interface EngineInterface {
 	 */
 	public function get(Environment $environment, $view, array $data = array());
 
+	/**
+	 * Add a new named path to the loader.
+	 *
+	 * @param  string  $name
+	 * @param  string  $path
+	 * @return void
+	 */
+	public function addNamedPath($name, $path);
+
 }

@@ -54,6 +54,18 @@ class Environment {
 	}
 
 	/**
+	 * Add a new named path to the loader.
+	 *
+	 * @param  string  $name
+	 * @param  string  $path
+	 * @return void
+	 */
+	public function addNamedPath($name, $path)
+	{
+		return $this->engine->addNamedPath($name, $path);
+	}
+
+	/**
 	 * Get the engine implementation.
 	 *
 	 * @return Illuminate\View\EngineInterface
