@@ -45,11 +45,12 @@ class BladeCompiler implements CompilerInterface {
 	 * Determine if the view at the given path is expired.
 	 *
 	 * @param  string  $path
-	 * @param  string  $compiled
 	 * @return bool
 	 */
-	public function isExpired($path, $compiled)
+	public function isExpired($path)
 	{
+		$compiled = $this->getCompiledPath($path);
+
 		if ( ! $this->files->exists($compiled))
 		{
 			return true;

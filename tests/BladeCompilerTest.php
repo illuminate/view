@@ -14,18 +14,18 @@ class BladeCompilerTest extends PHPUnit_Framework_TestCase {
 	public function testIsExpiredReturnsTrueIfCompiledFileDoesntExist()
 	{
 		$compiler = new BladeCompiler($files = $this->getFiles(), __DIR__);
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/compiled.php')->andReturn(false);
-		$this->assertTrue($compiler->isExpired('foo', __DIR__.'/compiled.php'));
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/'.md5('foo'))->andReturn(false);
+		$this->assertTrue($compiler->isExpired('foo'));
 	}
 
 
 	public function testIsExpiredReturnsTrueWhenModificationTimesWarrant()
 	{
 		$compiler = new BladeCompiler($files = $this->getFiles(), __DIR__);
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/compiled.php')->andReturn(true);
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/'.md5('foo'))->andReturn(true);
 		$files->shouldReceive('lastModified')->once()->with('foo')->andReturn(100);
-		$files->shouldReceive('lastModified')->once()->with(__DIR__.'/compiled.php')->andReturn(0);
-		$this->assertTrue($compiler->isExpired('foo', __DIR__.'/compiled.php'));
+		$files->shouldReceive('lastModified')->once()->with(__DIR__.'/'.md5('foo'))->andReturn(0);
+		$this->assertTrue($compiler->isExpired('foo'));
 	}
 
 

@@ -15,8 +15,8 @@ class CompilerEngineTest extends PHPUnit_Framework_TestCase {
 	{
 		$engine = $this->getEngine();
 		$engine->getFilesystem()->shouldReceive('exists')->once()->with(__DIR__.'/foo.php')->andReturn(true);
-		$engine->getCompiler()->shouldReceive('getCompiledPath')->once()->with(__DIR__.'/foo.php')->andReturn(__DIR__.'/compiled.php');
-		$engine->getCompiler()->shouldReceive('isExpired')->once()->with(__DIR__.'/foo.php', __DIR__.'/compiled.php')->andReturn(true);
+		$engine->getCompiler()->shouldReceive('getCompiledPath')->with(__DIR__.'/foo.php')->andReturn(__DIR__.'/compiled.php');
+		$engine->getCompiler()->shouldReceive('isExpired')->once()->with(__DIR__.'/foo.php')->andReturn(true);
 		$engine->getCompiler()->shouldReceive('compile')->once()->with(__DIR__.'/foo.php')->andReturn('Hello World');
 		$results = $engine->get(m::mock('Illuminate\View\Environment'), 'foo');
 
@@ -28,7 +28,7 @@ class CompilerEngineTest extends PHPUnit_Framework_TestCase {
 	{
 		$engine = $this->getEngine();
 		$engine->getFilesystem()->shouldReceive('exists')->once()->with(__DIR__.'/foo.php')->andReturn(true);
-		$engine->getCompiler()->shouldReceive('getCompiledPath')->once()->with(__DIR__.'/foo.php')->andReturn(__DIR__.'/compiled.php');
+		$engine->getCompiler()->shouldReceive('getCompiledPath')->with(__DIR__.'/foo.php')->andReturn(__DIR__.'/compiled.php');
 		$engine->getCompiler()->shouldReceive('isExpired')->once()->andReturn(false);
 		$engine->getCompiler()->shouldReceive('compile')->never();
 		$engine->getFilesystem()->shouldReceive('get')->once()->with(__DIR__.'/compiled.php')->andReturn('Hello World');
