@@ -16,8 +16,8 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 		$engine = m::mock('Illuminate\View\EngineInterface');
 		$env = new Environment($engine);
 		$env->share('baz', 'breeze');
-		$engine->shouldReceive('get')->once()->with($env, 'foo.bar', array('foo' => 'bar', 'baz' => 'breeze'))->andReturn('view');
-		$results = $env->make('foo.bar', array('foo' => 'bar', 'baz' => 'breeze'));
+		$engine->shouldReceive('get')->once()->with($env, 'foo.bar', array('foo' => 'bar', '__env' => $env, 'baz' => 'breeze'))->andReturn('view');
+		$results = $env->make('foo.bar', array('foo' => 'bar'));
 
 		$this->assertEquals('view', $results);
 	}

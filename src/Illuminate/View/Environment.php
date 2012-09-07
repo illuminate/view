@@ -27,6 +27,8 @@ class Environment {
 	public function __construct(EngineInterface $engine)
 	{
 		$this->engine = $engine;
+
+		$this->share('__env', $this);
 	}
 
 	/**
