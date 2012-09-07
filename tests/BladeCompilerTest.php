@@ -43,6 +43,41 @@ class BladeCompilerTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testExtendsAreCompiled()
+	{
+		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
+		$string = '@extends(\'foo\')
+test';
+		$expected = "test\r\n".'<?php echo $__env->make(\'foo\', get_defined_vars()); ?>';
+		$this->assertEquals($expected, $compiler->compileString($string));
+
+
+		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
+		$string = '@extends(name(foo))
+test';
+		$expected = "test\r\n".'<?php echo $__env->make(name(foo), get_defined_vars()); ?>';
+		$this->assertEquals($expected, $compiler->compileString($string));
+	}
+
+
+	public function testCommentsAreCompiled()
+	{
+		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
+		$string = '{{--this is a comment--}}';
+		$expected = '<?php /* this is a comment */ ?>';
+		$this->assertEquals($expected, $compiler->compileString($string));	
+
+
+		$string = '{{--
+this is a comment
+--}}';
+		$expected = '<?php /* 
+this is a comment
+ */ ?>';
+		$this->assertEquals($expected, $compiler->compileString($string));
+	}
+
+
 	public function testIfStatementsAreCompiled()
 	{
 		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
