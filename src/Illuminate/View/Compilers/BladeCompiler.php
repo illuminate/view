@@ -90,13 +90,15 @@ class BladeCompiler implements CompilerInterface {
 	 * Compile the view at the given path.
 	 *
 	 * @param  string  $path
-	 * @return void
+	 * @return string
 	 */
 	public function compile($path)
 	{
 		$contents = $this->compileString($this->files->get($path));
 
 		$this->files->put($this->getCompiledPath($path), $contents);
+
+		return $contents;
 	}
 
 	/**
