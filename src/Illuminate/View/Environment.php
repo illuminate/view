@@ -54,15 +54,15 @@ class Environment {
 	}
 
 	/**
-	 * Add a new named path to the loader.
+	 * Add a new namespace to the loader.
 	 *
-	 * @param  string  $name
-	 * @param  string  $path
+	 * @param  string  $namespace
+	 * @param  string  $hint
 	 * @return void
 	 */
-	public function addNamedPath($name, $path)
+	public function addNamespace($namespace, $hint)
 	{
-		return $this->engine->addNamedPath($name, $path);
+		return $this->engine->addNamespace($namespace, $hint);
 	}
 
 	/**

@@ -15,7 +15,7 @@ abstract class Engine {
 	 * @param  string  $name
 	 * @return array
 	 */
-	protected function getNamedPathSegments($name)
+	protected function getNamespaceSegments($name)
 	{
 		$segments = explode('::', $name);
 
@@ -33,15 +33,15 @@ abstract class Engine {
 	}
 
 	/**
-	 * Add a new named path to the loader.
+	 * Add a new namespace to the loader.
 	 *
 	 * @param  string  $name
 	 * @param  string  $path
 	 * @return void
 	 */
-	public function addNamedPath($name, $path)
+	public function addNamespace($namespace, $hint)
 	{
-		$this->hints[$name] = $path;
+		$this->hints[$namespace] = $hint;
 	}
 
 }

@@ -47,25 +47,9 @@ abstract class FileBasedEngine extends Engine {
 	 */
 	public function findView($name)
 	{
-		if (strpos($name, '::') !== false)
-		{
-			return $this->findNamedPathView($name);
-		}
+		if (strpos($name, '::') !== false) return $this->findNamedPathView($name);
 
-		// First we will format the template name to swap dots to slashes and add in
-		// the Twig extension. Then we will simply iterate through each path that
-		// is registerd with this loader, returning the first path we can find.
-		$name = $this->formatViewName($name);
-
-		foreach ($this->paths as $path)
-		{
-			if ($this->files->exists($full = $path.'/'.$name))
-			{
-				return $full;
-			}
-		}
-
-		throw new \InvalidArgumentException("Unable to find view [$name].");
+		return $this->findInPaths($name, $this->paths);
 	}
 
 	/**
@@ -76,19 +60,31 @@ abstract class FileBasedEngine extends Engine {
 	 */
 	protected function findNamedPathView($name)
 	{
-		list($hint, $name) = $this->getNamedPathSegments($name);
+		list($namespace, $view) = $this->getNamespaceSegments($name);
 
-		// For named path templates, the first segment is the hint name and the second
-		// is the template name. We will get the segments then format the name like
-		// usual. Then we'll simply check the named path's hint for the template.
+		return $this->findInPaths($view, $this->hints[$namespace]);
+	}
+
+	/**
+	 * Find the given view in the list of paths.
+	 *
+	 * @param  string  $name
+	 * @param  array   $paths
+	 * @return string
+	 */
+	protected function findInPaths($name, $paths)
+	{
 		$name = $this->formatViewName($name);
 
-		if ($this->files->exists($full = $this->hints[$hint].'/'.$name))
+		foreach ((array) $paths as $path)
 		{
-			return $full;
+			if ($this->files->exists($full = $path.'/'.$name))
+			{
+				return $full;
+			}
 		}
 
-		throw new \InvalidArgumentException("Unable to find view [$name].");	
+		$this->notFound($name);
 	}
 
 	/**
@@ -100,6 +96,17 @@ abstract class FileBasedEngine extends Engine {
 	protected function formatViewName($name)
 	{
 		return str_replace('.', '/', $name).$this->extension;
+	}
+
+	/**
+	 * Throw a not fond exception for the given view.
+	 *
+	 * @param  string  $name
+	 * @return void
+	 */
+	protected function notFound($name)
+	{
+		throw new \InvalidArgumentException("Unable to find view [$name].");
 	}
 
 	/**
@@ -122,6 +129,16 @@ abstract class FileBasedEngine extends Engine {
 	public function setExtension($extension)
 	{
 		$this->extension = $extension;
+	}
+
+	/**
+	 * Get the Filesystem instance.
+	 *
+	 * @return Illuminate\Filesystem
+	 */
+	public function getFilesystem()
+	{
+		return $this->files;
 	}
 
 }
