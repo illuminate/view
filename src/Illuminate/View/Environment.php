@@ -1,5 +1,6 @@
 <?php namespace Illuminate\View;
 
+use Closure;
 use Illuminate\Events\Dispatcher;
 
 class Environment {
@@ -17,6 +18,13 @@ class Environment {
 	 * @var array
 	 */
 	protected $shared = array();
+
+	/**
+	 * The error handler callback.
+	 *
+	 * @var Closure
+	 */
+	protected $errorHandler;
 
 	/**
 	 * Create a new view enviornment instance.
@@ -65,6 +73,30 @@ class Environment {
 	public function addNamespace($namespace, $hint)
 	{
 		return $this->engine->addNamespace($namespace, $hint);
+	}
+
+	/**
+	 * Handle the given exception with the error handler.
+	 *
+	 * @param  Exception  $e
+	 * @return void
+	 */
+	public function handleError(\Exception $e)
+	{
+		call_user_func($this->errorHandler, $e);
+
+		die;
+	}
+
+	/**
+	 * Set the error handler for the environment.
+	 *
+	 * @param  Closure  $callback
+	 * @return void
+	 */
+	public function setErrorHandler(Closure $callback)
+	{
+		$this->errorHandler = $callback;
 	}
 
 	/**

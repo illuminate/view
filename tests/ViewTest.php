@@ -28,4 +28,15 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('foo', $view->render());
 	}
 
+
+	public function testExceptionsInViewsCallErrorHandler()
+	{
+		$view = new View($env = m::mock('Illuminate\View\Environment'), 'view', array('foo' => 'bar'));
+		$env->shouldReceive('getShared')->once()->andReturn(array('baz' => 'boom'));
+		$e = new Exception('foo');
+		$env->shouldReceive('get')->once()->andReturnUsing(function() use ($e) { throw $e; });
+		$env->shouldReceive('handleError')->once()->with($e);
+		$view->__toString();
+	}
+
 }
