@@ -19,6 +19,14 @@ class BladeCompilerTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testIsExpiredReturnsTrueIfCachePathIsNull()
+	{
+		$compiler = new BladeCompiler($files = $this->getFiles(), null);
+		$files->shouldReceive('exists')->never();
+		$this->assertTrue($compiler->isExpired('foo'));
+	}
+
+
 	public function testIsExpiredReturnsTrueWhenModificationTimesWarrant()
 	{
 		$compiler = new BladeCompiler($files = $this->getFiles(), __DIR__);
@@ -41,6 +49,15 @@ class BladeCompilerTest extends PHPUnit_Framework_TestCase {
 		$compiler = new BladeCompiler($files = $this->getFiles(), __DIR__);
 		$files->shouldReceive('get')->once()->with('foo')->andReturn('Hello World');
 		$files->shouldReceive('put')->once()->with(__DIR__.'/'.md5('foo'), 'Hello World');
+		$this->assertEquals('Hello World', $compiler->compile('foo'));
+	}
+
+
+	public function testCompileDoesntStoreFilesWhenCachePathIsNull()
+	{
+		$compiler = new BladeCompiler($files = $this->getFiles(), null);
+		$files->shouldReceive('get')->once()->with('foo')->andReturn('Hello World');
+		$files->shouldReceive('put')->never();
 		$this->assertEquals('Hello World', $compiler->compile('foo'));
 	}
 
