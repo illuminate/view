@@ -1,4 +1,6 @@
-<?php namespace Illuminate\View;
+<?php namespace Illuminate\View\Engines;
+
+use Illuminate\View\Environment;
 
 interface EngineInterface {
 

@@ -1,6 +1,7 @@
-<?php namespace Illuminate\View;
+<?php namespace Illuminate\View\Engines;
 
 use Illuminate\Filesystem;
+use Illuminate\View\Environment;
 use Illuminate\View\Compilers\CompilerInterface;
 
 class CompilerEngine extends PhpEngine {

@@ -1,8 +1,9 @@
-<?php namespace Illuminate\View;
+<?php namespace Illuminate\View\Engines;
 
 use Twig_Environment;
 use Twig_LoaderInterface;
 use Illuminate\Filesystem;
+use Illuminate\View\Environment;
 
 class TwigEngine extends FileBasedEngine implements EngineInterface, Twig_LoaderInterface {
 

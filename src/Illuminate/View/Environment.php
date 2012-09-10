@@ -21,10 +21,10 @@ class Environment {
 	/**
 	 * Create a new view enviornment instance.
 	 *
-	 * @param  Illuminate\View\EngineInterface  $engine
+	 * @param  Illuminate\View\Engines\EngineInterface  $engine
 	 * @return void
 	 */
-	public function __construct(EngineInterface $engine)
+	public function __construct(Engines\EngineInterface $engine)
 	{
 		$this->engine = $engine;
 
@@ -40,7 +40,7 @@ class Environment {
 	 */
 	public function make($view, array $data = array())
 	{
-		return $this->engine->get($this, $view, array_merge($data, $this->shared));
+		return new View($this, $view, $data);
 	}
 
 	/**
@@ -70,7 +70,7 @@ class Environment {
 	/**
 	 * Get the engine implementation.
 	 *
-	 * @return Illuminate\View\EngineInterface
+	 * @return Illuminate\View\Engines\EngineInterface
 	 */
 	public function getEngine()
 	{

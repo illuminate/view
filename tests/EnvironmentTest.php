@@ -13,11 +13,11 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 
 	public function testEnvironmentCorrectlyCallsEngine()
 	{
-		$engine = m::mock('Illuminate\View\EngineInterface');
+		$engine = m::mock('Illuminate\View\Engines\EngineInterface');
 		$env = new Environment($engine);
 		$env->share('baz', 'breeze');
 		$engine->shouldReceive('get')->once()->with($env, 'foo.bar', array('foo' => 'bar', '__env' => $env, 'baz' => 'breeze'))->andReturn('view');
-		$results = $env->make('foo.bar', array('foo' => 'bar'));
+		$results = $env->make('foo.bar', array('foo' => 'bar'))->render();
 
 		$this->assertEquals('view', $results);
 	}
@@ -25,7 +25,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 
 	public function testAddingNamespaceCallsEngine()
 	{
-		$engine = m::mock('Illuminate\View\EngineInterface');
+		$engine = m::mock('Illuminate\View\Engines\EngineInterface');
 		$env = new Environment($engine);
 		$engine->shouldReceive('addNamespace')->once()->with('foo', 'bar');
 		$env->addNamespace('foo', 'bar');
