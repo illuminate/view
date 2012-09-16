@@ -74,11 +74,11 @@ abstract class FileBasedEngine extends Engine {
 	 */
 	protected function findInPaths($name, $paths)
 	{
-		$name = $this->formatViewName($name);
+		$fullName = $this->formatViewName($name);
 
 		foreach ((array) $paths as $path)
 		{
-			if ($this->files->exists($full = $path.'/'.$name))
+			if ($this->files->exists($full = $path.'/'.$fullName))
 			{
 				return $full;
 			}
