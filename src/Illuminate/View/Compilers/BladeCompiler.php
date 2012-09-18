@@ -246,7 +246,7 @@ class BladeCompiler implements CompilerInterface {
 	{
 		$pattern = $this->createOpenMatcher('include');
 
-		$replace = '$1<?php echo $__env->make$2, get_defined_vars()); ?>';
+		$replace = '$1<?php echo $__env->make$2, $__data); ?>';
 
 		return preg_replace($pattern, $replace, $value);
 	}
