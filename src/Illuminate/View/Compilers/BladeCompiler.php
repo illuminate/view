@@ -161,7 +161,7 @@ class BladeCompiler implements CompilerInterface {
 	 */
 	protected function compileComments($value)
 	{
-		return preg_replace('/\{\{--((.|\s)*?)--\}\}/', "<?php /* $1 */ ?>", $value);
+		return preg_replace('/\{\{--((.|\s)*?)--\}\}/', "<?php /* $1 */ ?> ", $value);
 	}
 
 	/**
@@ -172,7 +172,7 @@ class BladeCompiler implements CompilerInterface {
 	 */
 	protected function compileEchos($value)
 	{
-		return preg_replace('/\{\{(.+?)\}\}/', '<?php echo $1; ?>', $value);
+		return preg_replace('/\{\{(.+?)\}\}/', '<?php echo $1; ?> ', $value);
 	}
 
 	/**
@@ -185,7 +185,7 @@ class BladeCompiler implements CompilerInterface {
 	{
 		$pattern = '/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/';
 
-		return preg_replace($pattern, '$1<?php $2$3: ?>', $value);
+		return preg_replace($pattern, '$1<?php $2$3: ?> ', $value);
 	}
 
 	/**
@@ -198,7 +198,7 @@ class BladeCompiler implements CompilerInterface {
 	{
 		$pattern = '/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/';
 
-		return preg_replace($pattern, '$1<?php $2; ?>$3', $value);
+		return preg_replace($pattern, '$1<?php $2; ?> $3', $value);
 	}
 
 	/**
@@ -209,7 +209,7 @@ class BladeCompiler implements CompilerInterface {
 	 */
 	protected function compileElse($value)
 	{
-		return preg_replace('/(\s*)@(else)(\s*)/', '$1<?php $2: ?>$3', $value);
+		return preg_replace('/(\s*)@(else)(\s*)/', '$1<?php $2: ?> $3', $value);
 	}
 
 	/**
@@ -222,7 +222,7 @@ class BladeCompiler implements CompilerInterface {
 	{
 		$pattern = '/(\s*)@unless\s*\((.*)\)/';
 
-		return preg_replace($pattern, '$1<?php if ( ! ($2)): ?>', $value);
+		return preg_replace($pattern, '$1<?php if ( ! ($2)): ?> ', $value);
 	}
 
 	/**
@@ -233,7 +233,7 @@ class BladeCompiler implements CompilerInterface {
 	 */
 	protected function compileEndUnless($value)
 	{
-		return str_replace('@endunless', '<?php endif; ?>', $value);
+		return str_replace('@endunless', '<?php endif; ?> ', $value);
 	}
 
 	/**
@@ -246,7 +246,7 @@ class BladeCompiler implements CompilerInterface {
 	{
 		$pattern = $this->createOpenMatcher('include');
 
-		$replace = '$1<?php echo $__env->make$2, $__data); ?>';
+		$replace = '$1<?php echo $__env->make$2, $__data); ?> ';
 
 		return preg_replace($pattern, $replace, $value);
 	}
@@ -261,7 +261,7 @@ class BladeCompiler implements CompilerInterface {
 	{
 		$pattern = $this->createMatcher('each');
 
-		return preg_replace($pattern, '$1<?php echo $__env->showEach$2; ?>', $value);
+		return preg_replace($pattern, '$1<?php echo $__env->showEach$2; ?> ', $value);
 	}
 
 	/**
@@ -274,7 +274,7 @@ class BladeCompiler implements CompilerInterface {
 	{
 		$pattern = $this->createMatcher('yield');
 
-		return preg_replace($pattern, '$1<?php echo $__env->yield$2; ?>', $value);
+		return preg_replace($pattern, '$1<?php echo $__env->yield$2; ?> ', $value);
 	}
 
 	/**
@@ -285,7 +285,7 @@ class BladeCompiler implements CompilerInterface {
 	 */
 	protected function compileShows($value)
 	{
-		$replace = '<?php echo $__env->yieldSection(); ?>';
+		$replace = '<?php echo $__env->yieldSection(); ?> ';
 
 		return str_replace('@show', $replace, $value);
 	}
@@ -300,7 +300,7 @@ class BladeCompiler implements CompilerInterface {
 	{
 		$pattern = $this->createMatcher('section');
 
-		return preg_replace($pattern, '$1<?php $__env->startSection$2; ?>', $value);
+		return preg_replace($pattern, '$1<?php $__env->startSection$2; ?> ', $value);
 	}
 
 	/**
@@ -311,7 +311,7 @@ class BladeCompiler implements CompilerInterface {
 	 */
 	protected function compileSectionStop($value)
 	{
-		return preg_replace('/@stop/', '<?php $__env->stopSection(); ?>', $value);
+		return preg_replace('/@stop/', '<?php $__env->stopSection(); ?> ', $value);
 	}
 
 	/**
