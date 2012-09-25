@@ -36,7 +36,7 @@ abstract class Engine {
 	 * Add a new namespace to the loader.
 	 *
 	 * @param  string  $name
-	 * @param  string  $path
+	 * @param  string  $hint
 	 * @return void
 	 */
 	public function addNamespace($namespace, $hint)
