@@ -57,7 +57,7 @@ class View implements ArrayAccess {
 	 *
 	 * @param  string|array  $key
 	 * @param  mixed   $value
-	 * @return void
+	 * @return Illuminate\View\View
 	 */
 	public function with($key, $value = null)
 	{
@@ -69,6 +69,8 @@ class View implements ArrayAccess {
 		{
 			$this->data[$key] = $value;
 		}
+		
+		return $this;
 	}
 
 	/**
