@@ -11,7 +11,7 @@ class Exception extends \RuntimeException {
 	 */
 	public function __construct(\Exception $e, $file)
 	{
-		parent::__construct($e->getMessage());
+		parent::__construct($e->getMessage()." [From view: $file]");
 
 		$this->file = $file;
 		$this->line = $e->getLine();
