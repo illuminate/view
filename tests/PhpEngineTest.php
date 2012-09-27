@@ -25,6 +25,21 @@ class PhpEngineTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testNestedViewsMayBeProperlyRendered()
+	{
+		$files = m::mock('Illuminate\Filesystem');
+		$env = new Illuminate\View\Environment(new PhpEngine($files, array(__DIR__)));
+		$view = $env->make('foo');
+		$view->with('sub', $env->make('bar'));
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/bar.php')->andReturn(true);
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/foo.php')->andReturn(true);
+		$files->shouldReceive('get')->once()->with(__DIR__.'/bar.php')->andReturn('Child');
+		$files->shouldReceive('get')->once()->with(__DIR__.'/foo.php')->andReturn('Hello World <?php echo $sub; ?>');
+
+		$this->assertEquals('Hello World Child', $view->render());
+	}
+
+
 	/**
 	 * @expectedException Illuminate\View\Exception
 	 */
