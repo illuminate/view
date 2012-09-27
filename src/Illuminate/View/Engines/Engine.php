@@ -10,6 +10,13 @@ abstract class Engine {
 	protected $hints = array();
 
 	/**
+	 * The view that was last to be rendered.
+	 *
+	 * @var string
+	 */
+	protected $lastRendered;
+
+	/**
 	 * Get the segments of a template with a named path.
 	 *
 	 * @param  string  $name
@@ -42,6 +49,16 @@ abstract class Engine {
 	public function addNamespace($namespace, $hint)
 	{
 		$this->hints[$namespace] = $hint;
+	}
+
+	/**
+	 * Get the last view that was rendered.
+	 *
+	 * @var string
+	 */
+	public function getLastRendered()
+	{
+		return $this->lastRendered;
 	}
 
 }

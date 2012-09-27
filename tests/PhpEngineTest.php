@@ -21,6 +21,22 @@ class PhpEngineTest extends PHPUnit_Framework_TestCase {
 		$files->shouldReceive('get')->once()->with(__DIR__.'/nested/foo.php')->andReturn('Hello World');
 
 		$this->assertEquals('Hello World', $engine->get($env, 'foo'));
+		$this->assertEquals('foo', $engine->getLastRendered());
+	}
+
+
+	/**
+	 * @expectedException Illuminate\View\Exception
+	 */
+	public function testViewExceptionsAreThrown()
+	{
+		$files = m::mock('Illuminate\Filesystem');
+		$env = m::mock('Illuminate\View\Environment');
+		$engine = new PhpEngine($files, array(__DIR__, __DIR__.'/nested'));
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/foo.php')->andReturn(false);
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/nested/foo.php')->andReturn(true);
+		$files->shouldReceive('get')->once()->with(__DIR__.'/nested/foo.php')->andReturn('Hello World <?php throw new Exception("foo"); ?>');
+		$engine->get($env, 'foo');
 	}
 
 

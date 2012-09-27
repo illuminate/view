@@ -1,5 +1,6 @@
 <?php namespace Illuminate\View\Engines;
 
+use Illuminate\View\Exception;
 use Illuminate\View\Environment;
 
 class PhpEngine extends FileBasedEngine implements EngineInterface {
@@ -28,6 +29,8 @@ class PhpEngine extends FileBasedEngine implements EngineInterface {
 	 */
 	public function get(Environment $environment, $view, array $data = array())
 	{
+		$this->lastRendered = $view;
+
 		return $this->evaluatePath($this->findView($view), $data);
 	}
 
@@ -40,7 +43,7 @@ class PhpEngine extends FileBasedEngine implements EngineInterface {
 	 */
 	protected function evaluatePath($path, $data)
 	{
-		return $this->evaluateContents($this->files->get($path), $data);
+		return $this->evaluateContents($this->files->get($path), $data, $path);
 	}
 
 	/**
@@ -48,9 +51,10 @@ class PhpEngine extends FileBasedEngine implements EngineInterface {
 	 *
 	 * @param  string  $contents
 	 * @param  array   $data
+	 * @param  string  $path
 	 * @return string
 	 */
-	protected function evaluateContents($__contents, $__data)
+	protected function evaluateContents($__contents, $__data, $__path)
 	{
 		ob_start();
 
@@ -65,7 +69,7 @@ class PhpEngine extends FileBasedEngine implements EngineInterface {
 		}
 		catch (\Exception $e)
 		{
-			ob_get_clean(); throw $e;
+			ob_get_clean(); throw new Exception($e, $__path);
 		}
 
 		return ob_get_clean();

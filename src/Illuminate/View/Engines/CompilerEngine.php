@@ -39,6 +39,8 @@ class CompilerEngine extends PhpEngine {
 	 */
 	public function get(Environment $environment, $view, array $data = array())
 	{
+		$this->lastRendered = $view;
+
 		$path = $this->findView($view);
 
 		// If this given view has expired, which means it has simply been edited since
@@ -48,7 +50,7 @@ class CompilerEngine extends PhpEngine {
 		{
 			$contents = $this->compiler->compile($path);
 
-			return $this->evaluateContents($contents, $data);
+			return $this->evaluateContents($contents, $data, $path);
 		}
 		else
 		{

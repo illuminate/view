@@ -40,6 +40,8 @@ class TwigEngine extends FileBasedEngine implements EngineInterface, Twig_Loader
 	 */
 	public function get(Environment $environment, $view, array $data = array())
 	{
+		$this->lastRendered = $view;
+
 		return $this->twig->render($view, $data);
 	}
 
