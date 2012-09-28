@@ -22,7 +22,7 @@ interface CompilerInterface {
 	 * Compile the view at the given path.
 	 *
 	 * @param  string  $path
-	 * @return string
+	 * @return void
 	 */
 	public function compile($path);
 

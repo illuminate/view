@@ -30,7 +30,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 * Compile the view at the given path.
 	 *
 	 * @param  string  $path
-	 * @return string
+	 * @return void
 	 */
 	public function compile($path)
 	{
@@ -40,8 +40,6 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 		{
 			$this->files->put($this->getCompiledPath($path), $contents);
 		}
-
-		return $contents;
 	}
 
 	/**
