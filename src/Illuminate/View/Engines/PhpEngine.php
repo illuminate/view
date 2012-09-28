@@ -56,7 +56,7 @@ class PhpEngine extends FileBasedEngine implements EngineInterface {
 		}
 		catch (\Exception $e)
 		{
-			ob_get_clean(); throw new Exception($e, $__path);
+			ob_get_clean(); throw $e;
 		}
 
 		return ob_get_clean();
