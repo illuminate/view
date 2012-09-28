@@ -41,20 +41,7 @@ class PhpEngine extends FileBasedEngine implements EngineInterface {
 	 * @param  array   $data
 	 * @return string
 	 */
-	protected function evaluatePath($path, $data)
-	{
-		return $this->evaluateContents($this->files->get($path), $data, $path);
-	}
-
-	/**
-	 * Get the evaluated contents of the view.
-	 *
-	 * @param  string  $contents
-	 * @param  array   $data
-	 * @param  string  $path
-	 * @return string
-	 */
-	protected function evaluateContents($__contents, $__data, $__path)
+	protected function evaluatePath($__path, $__data)
 	{
 		ob_start();
 
@@ -65,7 +52,7 @@ class PhpEngine extends FileBasedEngine implements EngineInterface {
 		// an exception is thrown. This prevents any partial views from leaking.
 		try
 		{
-			eval('?>'.$__contents);
+			include $__path;
 		}
 		catch (\Exception $e)
 		{

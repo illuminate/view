@@ -48,16 +48,12 @@ class CompilerEngine extends PhpEngine {
 		// fresh copy of the view. We'll pass the compiler the path of the view.
 		if ($this->compiler->isExpired($path))
 		{
-			$contents = $this->compiler->compile($path);
-
-			return $this->evaluateContents($contents, $data, $path);
+			$this->compiler->compile($path);
 		}
-		else
-		{
-			$compiled = $this->compiler->getCompiledPath($path);
 
-			return $this->evaluatePath($compiled, $data);
-		}
+		$compiled = $this->compiler->getCompiledPath($path);
+
+		return $this->evaluatePath($compiled, $data);
 	}
 
 	/**

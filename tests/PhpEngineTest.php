@@ -15,43 +15,25 @@ class PhpEngineTest extends PHPUnit_Framework_TestCase {
 	{
 		$files = m::mock('Illuminate\Filesystem');
 		$env = m::mock('Illuminate\View\Environment');
-		$engine = new PhpEngine($files, array(__DIR__, __DIR__.'/nested'));
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/foo.php')->andReturn(false);
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/nested/foo.php')->andReturn(true);
-		$files->shouldReceive('get')->once()->with(__DIR__.'/nested/foo.php')->andReturn('Hello World');
+		$engine = new PhpEngine($files, array(__DIR__.'/fixtures', __DIR__.'/fixtures/nested'));
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/basic.php')->andReturn(false);
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/nested/basic.php')->andReturn(true);
 
-		$this->assertEquals('Hello World', $engine->get($env, 'foo'));
-		$this->assertEquals('foo', $engine->getLastRendered());
+		$this->assertEquals('Hello World', $engine->get($env, 'basic'));
+		$this->assertEquals('basic', $engine->getLastRendered());
 	}
 
 
 	public function testNestedViewsMayBeProperlyRendered()
 	{
 		$files = m::mock('Illuminate\Filesystem');
-		$env = new Illuminate\View\Environment(new PhpEngine($files, array(__DIR__)));
-		$view = $env->make('foo');
-		$view->with('sub', $env->make('bar'));
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/bar.php')->andReturn(true);
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/foo.php')->andReturn(true);
-		$files->shouldReceive('get')->once()->with(__DIR__.'/bar.php')->andReturn('Child');
-		$files->shouldReceive('get')->once()->with(__DIR__.'/foo.php')->andReturn('Hello World <?php echo $sub; ?>');
+		$env = new Illuminate\View\Environment(new PhpEngine($files, array(__DIR__.'/fixtures')));
+		$view = $env->make('nested.child');
+		$view->with('sub', $env->make('basic'));
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/nested/child.php')->andReturn(true);
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/basic.php')->andReturn(true);
 
-		$this->assertEquals('Hello World Child', $view->render());
-	}
-
-
-	/**
-	 * @expectedException Illuminate\View\Exception
-	 */
-	public function testViewExceptionsAreThrown()
-	{
-		$files = m::mock('Illuminate\Filesystem');
-		$env = m::mock('Illuminate\View\Environment');
-		$engine = new PhpEngine($files, array(__DIR__, __DIR__.'/nested'));
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/foo.php')->andReturn(false);
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/nested/foo.php')->andReturn(true);
-		$files->shouldReceive('get')->once()->with(__DIR__.'/nested/foo.php')->andReturn('Hello World <?php throw new Exception("foo"); ?>');
-		$engine->get($env, 'foo');
+		$this->assertEquals('Hello World Hello World', $view->render());
 	}
 
 
@@ -62,11 +44,10 @@ class PhpEngineTest extends PHPUnit_Framework_TestCase {
 	{
 		$files = m::mock('Illuminate\Filesystem');
 		$env = m::mock('Illuminate\View\Environment');
-		$engine = new PhpEngine($files, array(__DIR__, __DIR__.'/nested'));
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/foo.php')->andReturn(false);
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/nested/foo.php')->andReturn(false);
-		$files->shouldReceive('get')->never();
-		$engine->get($env, 'foo');
+		$engine = new PhpEngine($files, array(__DIR__.'/fixtures', __DIR__.'/fixtures/nested'));
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/basic.php')->andReturn(false);
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/nested/basic.php')->andReturn(false);
+		$engine->get($env, 'basic');
 	}
 
 
@@ -74,12 +55,11 @@ class PhpEngineTest extends PHPUnit_Framework_TestCase {
 	{
 		$files = m::mock('Illuminate\Filesystem');
 		$env = m::mock('Illuminate\View\Environment');
-		$engine = new PhpEngine($files, array(__DIR__));
-		$files->shouldReceive('exists')->once()->with(__DIR__.'/namespace/bar/baz.php')->andReturn(true);
-		$files->shouldReceive('get')->once()->with(__DIR__.'/namespace/bar/baz.php')->andReturn('Hello World');
-		$engine->addNamespace('foo', __DIR__.'/namespace');
+		$engine = new PhpEngine($files, array(__DIR__.'/fixtures'));
+		$files->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/namespaced/basic.php')->andReturn(true);
+		$engine->addNamespace('foo', __DIR__.'/fixtures/namespaced');
 
-		$this->assertEquals('Hello World', $engine->get($env, 'foo::bar.baz'));
+		$this->assertEquals('Hello World', $engine->get($env, 'foo::basic'));
 	}
 
 
