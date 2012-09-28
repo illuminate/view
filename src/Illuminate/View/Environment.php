@@ -8,7 +8,7 @@ class Environment {
 	/**
 	 * The engine implmentation.
 	 *
-	 * @var Illuminate\View\EngineInterface
+	 * @var Illuminate\View\Engines\EngineInterface
 	 */
 	protected $engine;
 
@@ -43,8 +43,8 @@ class Environment {
 	 * Get a evaluated view contents for the given view.
 	 *
 	 * @param  string  $view
-	 * @param  array   $parameters
-	 * @return string
+	 * @param  array   $data
+	 * @return Illuminate\View\View
 	 */
 	public function make($view, array $data = array())
 	{
