@@ -184,7 +184,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	{
 		$pattern = $this->createOpenMatcher('include');
 
-		$replace = '$1<?php echo $__env->make$2, $__data); ?>';
+		$replace = '$1<?php echo $__env->make$2, $__data)->render(); ?>';
 
 		return preg_replace($pattern, $replace, $value);
 	}
