@@ -26,6 +26,28 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testClassComposersAreRegisteredCorrectly()
+	{
+		$engine = m::mock('Illuminate\View\Engines\EngineInterface');
+		$events = new Illuminate\Events\Dispatcher;
+		$env = new Environment($engine, $events);
+		$env->setContainer($container = new Illuminate\Container);
+		$engine->shouldReceive('get')->once()->with($env, 'foo.bar', array('__env' => $env))->andReturn('view');
+		$view = $env->make('foo.bar');
+		$env->composer('foo.bar', 'FooComposer');
+		$mockComposer = m::mock('StdClass');
+		$container['FooComposer'] = $container->share(function() use ($mockComposer)
+		{
+			return $mockComposer;
+		});
+		$mockComposer->shouldReceive('compose')->once()->with($view);
+
+		$results = $view->render();
+
+		$this->assertEquals('view', $results);	
+	}
+
+
 	public function testAddingNamespaceCallsEngine()
 	{
 		$engine = m::mock('Illuminate\View\Engines\EngineInterface');

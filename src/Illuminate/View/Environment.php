@@ -1,6 +1,7 @@
 <?php namespace Illuminate\View;
 
 use Closure;
+use Illuminate\Container;
 use Illuminate\Events\Dispatcher;
 
 class Environment {
@@ -83,13 +84,42 @@ class Environment {
 	/**
 	 * Register a view composer event.
 	 *
-	 * @param  string   $view
-	 * @param  Closure  $callback
+	 * @param  string  $view
+	 * @param  Closure|string  $callback
 	 * @return void
 	 */
-	public function composer($view, Closure $callback)
+	public function composer($view, $callback)
 	{
-		$this->events->listen('composing: '.$view, $callback);
+		if ($callback instanceof Closure)
+		{
+			$this->events->listen('composing: '.$view, $callback);
+		}
+		elseif (is_string($callback))
+		{
+			$this->addClassComposer($view, $callback);
+		}
+	}
+
+	/**
+	 * Register a class based view composer.
+	 *
+	 * @param  string  $view
+	 * @param  string  $class
+	 * @return void
+	 */
+	protected function addClassComposer($view, $class)
+	{
+			$name = 'composing: '.$view;
+
+			// When registering a class based view composer, we will simply resolve the
+			// class from the application IoC container then call the compose method
+			// on the instance. It allows for convenient, testable view composers.
+			$container = $this->container;
+
+			$this->events->listen($name, function($view) use ($class, $container)
+			{
+				return $container[$class]->compose($view);
+			});
 	}
 
 	/**
@@ -157,6 +187,27 @@ class Environment {
 	public function getDispatcher()
 	{
 		return $this->events;
+	}
+
+	/**
+	 * Get the IoC container instance.
+	 *
+	 * @return Illuminate\Container
+	 */
+	public function getContainer()
+	{
+		return $this->container;
+	}
+
+	/**
+	 * Set the IoC container instance.
+	 *
+	 * @param  Illuminate\Container  $container
+	 * @return void
+	 */
+	public function setContainer(Container $container)
+	{
+		$this->container = $container;
 	}
 
 	/**
