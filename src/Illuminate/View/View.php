@@ -47,6 +47,8 @@ class View implements ArrayAccess {
 	 */
 	public function render()
 	{
+		$this->environment->callComposer($this);
+
 		$data = array_merge($this->data, $this->environment->getShared());
 
 		return $this->environment->get($this->environment, $this->view, $data);
@@ -71,6 +73,16 @@ class View implements ArrayAccess {
 		}
 		
 		return $this;
+	}
+
+	/**
+	 * Get the name of the view.
+	 *
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->view;
 	}
 
 	/**

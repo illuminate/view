@@ -27,9 +27,12 @@ class PhpEngineTest extends PHPUnit_Framework_TestCase {
 	public function testNestedViewsMayBeProperlyRendered()
 	{
 		$files = m::mock('Illuminate\Filesystem');
-		$env = new Illuminate\View\Environment(new PhpEngine($files, array(__DIR__.'/fixtures')));
+		$events = m::mock('Illuminate\Events\Dispatcher');
+		$env = new Illuminate\View\Environment(new PhpEngine($files, array(__DIR__.'/fixtures')), $events);
 		$view = $env->make('nested.child');
-		$view->with('sub', $env->make('basic'));
+		$view->with('sub', $sub = $env->make('basic'));
+		$events->shouldReceive('fire')->once()->with('composing: basic', array($sub));
+		$events->shouldReceive('fire')->once()->with('composing: nested.child', array($view));
 		$files->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/nested/child.php')->andReturn(true);
 		$files->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/basic.php')->andReturn(true);
 

@@ -23,6 +23,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	public function testRenderCallsEnvironmentProperly()
 	{
 		$view = new View($env = m::mock('Illuminate\View\Environment'), 'view', array('foo' => 'bar'));
+		$env->shouldReceive('callComposer')->once()->with($view);
 		$env->shouldReceive('getShared')->once()->andReturn(array('baz' => 'boom'));
 		$env->shouldReceive('get')->once()->with($env, 'view', array('foo' => 'bar', 'baz' => 'boom'))->andReturn('foo');
 		$this->assertEquals('foo', $view->render());
@@ -32,6 +33,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	public function testExceptionsInViewsCallErrorHandler()
 	{
 		$view = new View($env = m::mock('Illuminate\View\Environment'), 'view', array('foo' => 'bar'));
+		$env->shouldReceive('callComposer')->once()->with($view);
 		$env->shouldReceive('getShared')->once()->andReturn(array('baz' => 'boom'));
 		$e = new Exception('foo');
 		$env->shouldReceive('get')->once()->andReturnUsing(function() use ($e) { throw $e; });
