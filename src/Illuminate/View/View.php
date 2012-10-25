@@ -1,6 +1,7 @@
 <?php namespace Illuminate\View;
 
 use ArrayAccess;
+use Illuminate\View\Engines\SectionableInterface as Sectionable;
 
 class View implements ArrayAccess {
 
@@ -47,8 +48,37 @@ class View implements ArrayAccess {
 	 */
 	public function render()
 	{
-		$this->environment->callComposer($this);
+		$env = $this->environment;
 
+		// We will keep track of the amount of views being rendered so we can flush
+		// the section after the complete rendering operation is done. This will
+		// clear out the sections for any separate views that may be rendered.
+		$env->incrementRender();
+
+		$env->callComposer($this);
+
+		$contents = $this->getContents();
+
+		$env->decrementRender();
+
+		// Once we've finished rendering the view, we'll decrement the render count
+		// then if we are at the bottom of the stack we'll flush out sections as
+		// they might interfere with totally separate view's evaluations later.
+		if ($env->doneRendering() and $env->isSectionable())
+		{
+			$env->getEngine()->flushSections();
+		}
+
+		return $contents;
+	}
+
+	/**
+	 * Get the evaluated contents of the view.
+	 *
+	 * @return string
+	 */
+	protected function getContents()
+	{
 		$data = array_merge($this->data, $this->environment->getShared());
 
 		return $this->environment->get($this->environment, $this->view, $data);

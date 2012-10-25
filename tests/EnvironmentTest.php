@@ -57,4 +57,14 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 		$env->addNamespace('foo', 'bar');
 	}
 
+
+	public function testRenderCountHandling()
+	{
+		$env = new Environment(m::mock('Illuminate\View\Engines\EngineInterface'), m::mock('Illuminate\Events\Dispatcher'));
+		$env->incrementRender();
+		$this->assertFalse($env->doneRendering());
+		$env->decrementRender();
+		$this->assertTrue($env->doneRendering());
+	}
+
 }

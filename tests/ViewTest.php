@@ -24,15 +24,38 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	{
 		$view = new View($env = m::mock('Illuminate\View\Environment'), 'view', array('foo' => 'bar'));
 		$env->shouldReceive('callComposer')->once()->with($view);
+		$env->shouldReceive('incrementRender')->once();
+		$env->shouldReceive('decrementRender')->once();
+		$env->shouldReceive('doneRendering')->once()->andReturn(false);
 		$env->shouldReceive('getShared')->once()->andReturn(array('baz' => 'boom'));
 		$env->shouldReceive('get')->once()->with($env, 'view', array('foo' => 'bar', 'baz' => 'boom'))->andReturn('foo');
 		$this->assertEquals('foo', $view->render());
 	}
 
 
+	public function testSectionsAreFlushedWhenRenderStackIsDoneAndSectionable()
+	{
+		$view = new View($env = m::mock('Illuminate\View\Environment'), 'view', array('foo' => 'bar'));
+		$env->shouldReceive('callComposer')->once()->with($view);
+		$env->shouldReceive('incrementRender')->once();
+		$env->shouldReceive('decrementRender')->once();
+		$env->shouldReceive('doneRendering')->once()->andReturn(true);
+		$env->shouldReceive('isSectionable')->once()->andReturn(true);
+		$engine = m::mock('StdClass');
+		$engine->shouldReceive('flushSections')->once();
+		$env->shouldReceive('getEngine')->once()->andReturn($engine);
+		$env->shouldReceive('getShared')->once()->andReturn(array('baz' => 'boom'));
+		$env->shouldReceive('get')->once()->with($env, 'view', array('foo' => 'bar', 'baz' => 'boom'))->andReturn('foo');
+		$this->assertEquals('foo', $view->render());		
+	}
+
+
 	public function testExceptionsInViewsCallErrorHandler()
 	{
 		$view = new View($env = m::mock('Illuminate\View\Environment'), 'view', array('foo' => 'bar'));
+		$env->shouldReceive('incrementRender')->once();
+		$env->shouldReceive('decrementRender')->once();
+		$env->shouldReceive('doneRendering')->once()->andReturn(false);
 		$env->shouldReceive('callComposer')->once()->with($view);
 		$env->shouldReceive('getShared')->once()->andReturn(array('baz' => 'boom'));
 		$e = new Exception('foo');

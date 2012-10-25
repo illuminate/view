@@ -3,7 +3,7 @@
 use Illuminate\View\Exception;
 use Illuminate\View\Environment;
 
-class PhpEngine extends FileBasedEngine implements EngineInterface {
+class PhpEngine extends FileBasedEngine implements EngineInterface, SectionableInterface {
 
 	/**
 	 * All of the finished, captured sections.
@@ -147,6 +147,28 @@ class PhpEngine extends FileBasedEngine implements EngineInterface {
 	public function yield($section)
 	{
 		return isset($this->sections[$section]) ? $this->sections[$section] : '';
+	}
+
+	/**
+	 * Flush all of the section contents.
+	 *
+	 * @return void
+	 */
+	public function flushSections()
+	{
+		$this->sections = array();
+
+		$this->sectionStack = array();
+	}
+
+	/**
+	 * Get the entire array of sections.
+	 *
+	 * @return array
+	 */
+	public function getSections()
+	{
+		return $this->sections;
 	}
 
 }

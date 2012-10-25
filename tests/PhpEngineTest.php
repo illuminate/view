@@ -130,4 +130,19 @@ class PhpEngineTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('', $engine->yield('foo'));
 	}
 
+
+	public function testSectionFlushing()
+	{
+		$engine = new PhpEngine(m::mock('Illuminate\Filesystem'), array(__DIR__));
+		$engine->startSection('foo');
+		echo 'hi';
+		$engine->stopSection();
+
+		$this->assertEquals(1, count($engine->getSections()));
+
+		$engine->flushSections();
+
+		$this->assertEquals(0, count($engine->getSections()));
+	}
+
 }

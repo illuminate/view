@@ -3,6 +3,7 @@
 use Closure;
 use Illuminate\Container;
 use Illuminate\Events\Dispatcher;
+use Illuminate\View\Engines\SectionableInterface;
 
 class Environment {
 
@@ -40,6 +41,13 @@ class Environment {
 	 * @var Closure
 	 */
 	protected $errorHandler;
+
+	/**
+	 * The number of active rendering operations.
+	 *
+	 * @var int
+	 */
+	protected $renderCount = 0;
 
 	/**
 	 * Create a new view enviornment instance.
@@ -143,6 +151,46 @@ class Environment {
 	public function addNamespace($namespace, $hint)
 	{
 		return $this->engine->addNamespace($namespace, $hint);
+	}
+
+	/**
+	 * Increment the rendering counter.
+	 *
+	 * @return void
+	 */
+	public function incrementRender()
+	{
+		$this->renderCount++;
+	}
+
+	/**
+	 * Decrement the rendering counter.
+	 *
+	 * @return void
+	 */
+	public function decrementRender()
+	{
+		$this->renderCount--;
+	}
+
+	/**
+	 * Check if there are no active render operations.
+	 *
+	 * @return bool
+	 */
+	public function doneRendering()
+	{
+		return $this->renderCount == 0;
+	}
+
+	/**
+	 * Determine if the engine is sectionable.
+	 *
+	 * @return bool
+	 */
+	public function isSectionable()
+	{
+		return $this->engine instanceof SectionableInterface;
 	}
 
 	/**
