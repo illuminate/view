@@ -79,7 +79,7 @@ class View implements ArrayAccess {
 	 */
 	protected function getContents()
 	{
-		$data = array_merge($this->data, $this->environment->getShared());
+		$data = array_merge($this->environment->getShared(), $this->data);
 
 		return $this->environment->get($this->environment, $this->view, $data);
 	}
