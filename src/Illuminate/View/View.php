@@ -1,9 +1,10 @@
 <?php namespace Illuminate\View;
 
 use ArrayAccess;
+use Illuminate\Support\RenderableInterface as Renderable;
 use Illuminate\View\Engines\SectionableInterface as Sectionable;
 
-class View implements ArrayAccess {
+class View implements ArrayAccess, Renderable {
 
 	/**
 	 * The environment instance.
