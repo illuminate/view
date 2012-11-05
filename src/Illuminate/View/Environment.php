@@ -126,7 +126,7 @@ class Environment {
 
 			$this->events->listen($name, function($view) use ($class, $container)
 			{
-				return $container[$class]->compose($view);
+				return $container->make($class)->compose($view);
 			});
 	}
 
