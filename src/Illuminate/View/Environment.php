@@ -36,6 +36,13 @@ class Environment {
 	protected $composers = array();
 
 	/**
+	 * The IoC container instance.
+	 *
+	 * @var Illuminate\Container
+	 */
+	protected $container;
+
+	/**
 	 * The error handler callback.
 	 *
 	 * @var Closure
