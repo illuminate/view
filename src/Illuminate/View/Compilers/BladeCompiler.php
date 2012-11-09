@@ -121,7 +121,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	protected function compileOpenings($value)
 	{
-		$pattern = '/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/';
+		$pattern = '/(?<!\w)(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/';
 
 		return preg_replace($pattern, '$1<?php $2$3: ?>', $value);
 	}
@@ -147,7 +147,9 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	protected function compileElse($value)
 	{
-		return preg_replace('/(\s*)@(else)(\s*)/', '$1<?php $2: ?>$3', $value);
+		$pattern = $this->createPlainMatcher('else');
+
+		return preg_replace($pattern, '$1<?php else: ?>$2', $value);
 	}
 
 	/**
@@ -158,9 +160,9 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	protected function compileUnless($value)
 	{
-		$pattern = '/(\s*)@unless\s*\((.*)\)/';
+		$pattern = $this->createMatcher('unless');
 
-		return preg_replace($pattern, '$1<?php if ( ! ($2)): ?>', $value);
+		return preg_replace($pattern, '$1<?php if ( !$2): ?>', $value);
 	}
 
 	/**
@@ -251,7 +253,9 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	protected function compileSectionStop($value)
 	{
-		return preg_replace('/@stop/', '<?php $__env->stopSection(); ?>', $value);
+		$pattern = $this->createPlainMatcher('stop');
+
+		return preg_replace($pattern, '$1<?php $__env->stopSection(); ?>$2', $value);
 	}
 
 	/**
@@ -262,7 +266,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	public function createMatcher($function)
 	{
-		return '/(\s*)@'.$function.'(\s*\(.*\))/';
+		return '/(?<!\w)(\s*)@'.$function.'(\s*\(.*\))/';
 	}
 
 	/**
@@ -273,7 +277,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	public function createOpenMatcher($function)
 	{
-		return '/(\s*)@'.$function.'(\s*\(.*)\)/';
+		return '/(?<!\w)(\s*)@'.$function.'(\s*\(.*)\)/';
 	}
 
 	/**
@@ -284,7 +288,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	public function createPlainMatcher($function)
 	{
-		return '/(\s*)@'.$function.'(\s*)/';
+		return '/(?<!\w)(\s*)@'.$function.'(\s*)/';
 	}
 
 }
