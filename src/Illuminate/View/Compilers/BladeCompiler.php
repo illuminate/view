@@ -171,7 +171,9 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	protected function compileEndUnless($value)
 	{
-		return str_replace('@endunless', '<?php endif; ?>', $value);
+		$pattern = $this->createPlainMatcher('endunless');
+
+		return preg_replace($pattern, '$1<?php endif; ?>$2', $value);
 	}
 
 	/**
@@ -225,7 +227,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	{
 		$pattern = $this->createPlainMatcher('show');
 
-		return preg_replace($pattern, '<?php echo $__env->yieldSection(); ?>', $value);
+		return preg_replace($pattern, '$1<?php echo $__env->yieldSection(); ?>$2', $value);
 	}
 
 	/**
