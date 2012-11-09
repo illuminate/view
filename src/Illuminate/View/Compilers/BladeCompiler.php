@@ -223,9 +223,9 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	protected function compileShows($value)
 	{
-		$replace = '<?php echo $__env->yieldSection(); ?>';
+		$pattern = $this->createPlainMatcher('show');
 
-		return str_replace('@show', $replace, $value);
+		return preg_replace($pattern, '<?php echo $__env->yieldSection(); ?>', $value);
 	}
 
 	/**
@@ -272,6 +272,17 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	public function createOpenMatcher($function)
 	{
 		return '/(\s*)@'.$function.'(\s*\(.*)\)/';
+	}
+
+	/**
+	 * Create a plain Blade matcher.
+	 *
+	 * @param  string  $function
+	 * @return string
+	 */
+	public function createPlainMatcher($function)
+	{
+		return '/(\s*)@'.$function.'(\s*)/';
 	}
 
 }
