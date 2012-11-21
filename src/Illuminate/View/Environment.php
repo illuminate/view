@@ -124,17 +124,17 @@ class Environment {
 	 */
 	protected function addClassComposer($view, $class)
 	{
-			$name = 'composing: '.$view;
+		$name = 'composing: '.$view;
 
-			// When registering a class based view composer, we will simply resolve the
-			// class from the application IoC container then call the compose method
-			// on the instance. It allows for convenient, testable view composers.
-			$container = $this->container;
+		// When registering a class based view composer, we will simply resolve the
+		// class from the application IoC container then call the compose method
+		// on the instance. It allows for convenient, testable view composers.
+		$container = $this->container;
 
-			$this->events->listen($name, function($view) use ($class, $container)
-			{
-				return $container->make($class)->compose($view);
-			});
+		$this->events->listen($name, function($view) use ($class, $container)
+		{
+			return $container->make($class)->compose($view);
+		});
 	}
 
 	/**
