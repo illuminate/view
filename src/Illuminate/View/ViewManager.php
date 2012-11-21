@@ -109,7 +109,7 @@ class ViewManager extends Manager {
 	 */
 	protected function getCachePath()
 	{
-		return $this->app['config']['view.cache'];
+		return $this->app['path'].'/storage/views';
 	}
 
 	/**
