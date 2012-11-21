@@ -1,7 +1,7 @@
 <?php namespace Illuminate\View;
 
 use Illuminate\Support\Manager;
-use Illuminate\Validation\MessageBag;
+use Illuminate\Support\MessageBag;
 use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\Engines\TwigEngine;
 use Illuminate\View\Engines\CompilerEngine;
