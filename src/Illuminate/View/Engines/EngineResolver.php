@@ -40,7 +40,7 @@ class EngineResolver {
 	{
 		if ( ! isset($this->resolved[$engine]))
 		{
-			$this->resolved[$engine] = call_uesr_func($this->resolvers[$engine]);
+			$this->resolved[$engine] = call_user_func($this->resolvers[$engine]);
 		}
 
 		return $this->resolved[$engine];

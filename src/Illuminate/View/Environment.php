@@ -380,6 +380,36 @@ class Environment {
 	}
 
 	/**
+	 * Increment the rendering counter.
+	 *
+	 * @return void
+	 */
+	public function incrementRender()
+	{
+		$this->renderCount++;
+	}
+
+	/**
+	 * Decrement the rendering counter.
+	 *
+	 * @return void
+	 */
+	public function decrementRender()
+	{
+		$this->renderCount--;
+	}
+
+	/**
+	 * Check if there are no active render operations.
+	 *
+	 * @return bool
+	 */
+	public function doneRendering()
+	{
+		return $this->renderCount == 0;
+	}
+
+	/**
 	 * Add a path to the array of view paths.
 	 *
 	 * @param  string  $path
@@ -415,36 +445,6 @@ class Environment {
 	}
 
 	/**
-	 * Increment the rendering counter.
-	 *
-	 * @return void
-	 */
-	public function incrementRender()
-	{
-		$this->renderCount++;
-	}
-
-	/**
-	 * Decrement the rendering counter.
-	 *
-	 * @return void
-	 */
-	public function decrementRender()
-	{
-		$this->renderCount--;
-	}
-
-	/**
-	 * Check if there are no active render operations.
-	 *
-	 * @return bool
-	 */
-	public function doneRendering()
-	{
-		return $this->renderCount == 0;
-	}
-
-	/**
 	 * Get the engine resolver instance.
 	 *
 	 * @return Illuminate\View\Engines\EngineResolver
@@ -462,6 +462,16 @@ class Environment {
 	public function getDispatcher()
 	{
 		return $this->events;
+	}
+
+	/**
+	 * Get the filesystem instance.
+	 *
+	 * @return Illuminate\Filesystem
+	 */
+	public function getFilesystem()
+	{
+		return $this->files;
 	}
 
 	/**
