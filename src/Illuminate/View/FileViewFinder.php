@@ -152,9 +152,11 @@ class FileViewFinder implements ViewFinderInterface {
 	 */
 	public function addNamespace($namespace, $hints)
 	{
+		$hints = (array) $hints;
+
 		if (isset($this->hints[$namespace]))
 		{
-			$hints = array_merge($this->hints[$namespace], (array) $hints);
+			$hints = array_merge($this->hints[$namespace], $hints);
 		}
 
 		$this->hints[$namespace] = $hints;
