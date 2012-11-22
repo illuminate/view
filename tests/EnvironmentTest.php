@@ -87,9 +87,8 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	{
 		return new Environment(
 			m::mock('Illuminate\View\Engines\EngineResolver'),
-			m::mock('Illuminate\Events\Dispatcher'),
-			m::mock('Illuminate\Filesystem'),
-			array(__DIR__)
+			m::mock('Illuminate\View\ViewFinder'),
+			m::mock('Illuminate\Events\Dispatcher')
 		);
 	}
 

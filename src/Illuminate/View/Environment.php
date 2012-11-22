@@ -2,7 +2,6 @@
 
 use Closure;
 use Illuminate\Container;
-use Illuminate\Filesystem;
 use Illuminate\Events\Dispatcher;
 use Illuminate\View\Engines\EngineResolver;
 
@@ -16,25 +15,18 @@ class Environment {
 	protected $engines;
 
 	/**
+	 * The view finder instance.
+	 *
+	 * @var Illuminate\View\ViewFinder
+	 */
+	protected $finder;
+
+	/**
 	 * The event dispatcher instance.
 	 *
 	 * @var Illuminate\Events\Dispatcher
 	 */
 	protected $events;
-
-	/**
-	 * The filesystem instance.
-	 *
-	 * @var Illuminate\Filesystem
-	 */
-	protected $files;
-
-	/**
-	 * All of the active view paths.
-	 *
-	 * @var array
-	 */
-	protected $paths = array();
 
 	/**
 	 * The IoC container instance.
@@ -49,13 +41,6 @@ class Environment {
 	 * @var array
 	 */
 	protected $shared = array();
-
-	/**
-	 * All of the namesapce hint paths.
-	 *
-	 * @var array
-	 */
-	protected $hints = array();
 
 	/**
 	 * The view composer events.
@@ -89,15 +74,13 @@ class Environment {
 	 * Create a new view enviornment instance.
 	 *
 	 * @param  Illuminate\View\Engines\EngineResolver  $engines
+	 * @param  Illuminate\View\ViewFinder  $finder
 	 * @param  Illuminate\Events\Dispatcher  $events
-	 * @param  Illuminate\Filesystem  $files
-	 * @param  array  $paths
 	 * @return void
 	 */
-	public function __construct(EngineResolver $engines, Dispatcher $events, Filesystem $files, array $paths)
+	public function __construct(EngineResolver $engines, ViewFinder $finder, Dispatcher $events)
 	{
-		$this->files = $files;
-		$this->paths = $paths;
+		$this->finder = $finder;
 		$this->events = $events;
 		$this->engines = $engines;
 
@@ -113,94 +96,9 @@ class Environment {
 	 */
 	public function make($view, array $data = array())
 	{
-		$path = $this->findView($view);
+		$path = $this->finder->find($view);
 
 		return new View($this, $this->getEngineFromPath($path), $view, $path, $data);
-	}
-
-	/**
-	 * Get the full path to a template.
-	 *
-	 * @param  string  $name
-	 * @return string
-	 */
-	public function findView($name)
-	{
-		if (strpos($name, '::') !== false) return $this->findNamedPathView($name);
-
-		return $this->findInPaths($name, $this->paths);
-	}
-
-	/**
-	 * Get the path to a template with a named path.
-	 *
-	 * @param  string  $name
-	 * @return string
-	 */
-	protected function findNamedPathView($name)
-	{
-		list($namespace, $view) = $this->getNamespaceSegments($name);
-
-		return $this->findInPaths($view, $this->hints[$namespace]);
-	}
-
-	/**
-	 * Get the segments of a template with a named path.
-	 *
-	 * @param  string  $name
-	 * @return array
-	 */
-	protected function getNamespaceSegments($name)
-	{
-		$segments = explode('::', $name);
-
-		if (count($segments) != 2)
-		{
-			throw new \InvalidArgumentException("View [$name] has an invalid name.");
-		}
-
-		if ( ! isset($this->hints[$segments[0]]))
-		{
-			throw new \InvalidArgumentException("No hint path defined for [{$segments[0]}].");
-		}
-
-		return $segments;
-	}
-
-	/**
-	 * Find the given view in the list of paths.
-	 *
-	 * @param  string  $name
-	 * @param  array   $paths
-	 * @return string
-	 */
-	protected function findInPaths($name, $paths)
-	{
-		foreach ((array) $paths as $path)
-		{
-			foreach ($this->getPossibleViewFiles($name) as $viewPath)
-			{
-				if ($this->files->exists($viewPath)) return $viewPath;
-			}
-		}
-
-		throw new \InvalidArgumentException("View [$name] not found.");
-	}
-
-	/**
-	 * Get an array of fully formatted possible view files.
-	 *
-	 *
-	 * @param  string  $name
-	 * @return array
-	 */
-	protected function getPossibleViewFiles($name)
-	{
-		return array_map(function($extension) use ($name)
-		{
-			return str_replace('.', '/', $name).'.'.$extension;
-
-		}, array_keys($this->extensions));
 	}
 
 	/**
@@ -211,7 +109,7 @@ class Environment {
 	 */
 	protected function getEngineFromPath($path)
 	{
-		$engine = $this->extensions[$this->files->extension($path)];
+		$engine = $this->extensions[pathinfo($path, PATHINFO_EXTENSION)];
 
 		return $this->engines->resolve($engine);
 	}
@@ -417,7 +315,19 @@ class Environment {
 	 */
 	public function addPath($path)
 	{
-		$this->paths[] = $path;
+		$this->finder->addPath($path);
+	}
+
+	/**
+	 * Add a new namespace to the loader.
+	 *
+	 * @param  string  $namespace
+	 * @param  string  $hint
+	 * @return void
+	 */
+	public function addNamespace($namespace, $hint)
+	{
+		$this->finder->addNamespace($namespace, $hint);
 	}
 
 	/**
@@ -433,18 +343,6 @@ class Environment {
 	}
 
 	/**
-	 * Add a new namespace to the loader.
-	 *
-	 * @param  string  $namespace
-	 * @param  string  $hint
-	 * @return void
-	 */
-	public function addNamespace($namespace, $hint)
-	{
-		$this->hints[$namespace] = $hint;
-	}
-
-	/**
 	 * Get the engine resolver instance.
 	 *
 	 * @return Illuminate\View\Engines\EngineResolver
@@ -455,6 +353,16 @@ class Environment {
 	}
 
 	/**
+	 * Get the view finder instance.
+	 *
+	 * @return Illuminate\View\ViewFinder
+	 */
+	public function getFinder()
+	{
+		return $this->finder;
+	}
+
+	/**
 	 * Get the event dispatcher instance.
 	 *
 	 * @return Illuminate\Events\Dispatcher
@@ -462,16 +370,6 @@ class Environment {
 	public function getDispatcher()
 	{
 		return $this->events;
-	}
-
-	/**
-	 * Get the filesystem instance.
-	 *
-	 * @return Illuminate\Filesystem
-	 */
-	public function getFilesystem()
-	{
-		return $this->files;
 	}
 
 	/**
