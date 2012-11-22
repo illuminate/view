@@ -2,7 +2,7 @@
 
 use Illuminate\Filesystem;
 
-class ViewFinder {
+class FileViewFinder implements ViewFinderInterface {
 
 	/**
 	 * The filesystem instance.
@@ -26,6 +26,13 @@ class ViewFinder {
 	protected $hints = array();
 
 	/**
+	 * Register a view extension with the finder.
+	 *
+	 * @var array
+	 */
+	protected $extensions = array('php', 'blade.php');
+
+	/**
 	 * Create a new file view loader instance.
 	 *
 	 * @param  Illuminate\Filesystem  $files
@@ -39,7 +46,7 @@ class ViewFinder {
 	}
 
 	/**
-	 * Get the full path to a view.
+	 * Get the fullly qualified location of the view.
 	 *
 	 * @param  string  $name
 	 * @return string
@@ -98,9 +105,12 @@ class ViewFinder {
 	{
 		foreach ((array) $paths as $path)
 		{
-			foreach ($this->getPossibleViewFiles($name) as $viewPath)
+			foreach ($this->getPossibleViewFiles($name) as $file)
 			{
-				if ($this->files->exists($viewPath)) return $viewPath;
+				if ($this->files->exists($viewPath = $path.'/'.$file))
+				{
+					return $viewPath;
+				}
 			}
 		}
 
@@ -108,8 +118,7 @@ class ViewFinder {
 	}
 
 	/**
-	 * Get an array of fully formatted possible view files.
-	 *
+	 * Get an array of possible view files.
 	 *
 	 * @param  string  $name
 	 * @return array
@@ -120,30 +129,56 @@ class ViewFinder {
 		{
 			return str_replace('.', '/', $name).'.'.$extension;
 
-		}, array_keys($this->extensions));
+		}, $this->extensions);
 	}
 
 	/**
-	 * Add a path to the finder.
+	 * Add a location to the finder.
 	 *
-	 * @param  string  $path
+	 * @param  string  $location
 	 * @return void
 	 */
-	public function addPath($path)
+	public function addLocation($location)
 	{
-		$this->paths[] = $path;
+		$this->paths[] = $location;
 	}
 
 	/**
 	 * Add a namespace hint to the finder.
 	 *
 	 * @param  string  $namespace
-	 * @param  string  $hint
+	 * @param  string|array  $hints
 	 * @return void
 	 */
-	public function addNamespace($namespace, $hint)
+	public function addNamespace($namespace, $hints)
 	{
-		$this->hints[$namespace] = $hint;
+		if (isset($this->hints[$namespace]))
+		{
+			$hints = array_merge($this->hints[$namespace], (array) $hints);
+		}
+
+		$this->hints[$namespace] = $hints;
+	}
+
+	/**
+	 * Register an extension with the view finder.
+	 *
+	 * @param  string  $extension
+	 * @return void
+	 */
+	public function addExtension($extension)
+	{
+		$this->extensions[] = $extension;
+	}
+
+	/**
+	 * Get the filesystem instance.
+	 *
+	 * @return Illuminate\Filesystem
+	 */
+	public function getFilesystem()
+	{
+		return $this->files;
 	}
 
 }

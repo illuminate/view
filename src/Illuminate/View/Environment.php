@@ -15,9 +15,9 @@ class Environment {
 	protected $engines;
 
 	/**
-	 * The view finder instance.
+	 * The view finder implementation.
 	 *
-	 * @var Illuminate\View\ViewFinder
+	 * @var Illuminate\View\ViewFinderInterface
 	 */
 	protected $finder;
 
@@ -41,6 +41,13 @@ class Environment {
 	 * @var array
 	 */
 	protected $shared = array();
+
+	/**
+	 * The extension to engine bindings.
+	 *
+	 * @var array
+	 */
+	protected $extensions = array('php' => 'php', 'blade.php' => 'blade');
 
 	/**
 	 * The view composer events.
@@ -74,11 +81,11 @@ class Environment {
 	 * Create a new view enviornment instance.
 	 *
 	 * @param  Illuminate\View\Engines\EngineResolver  $engines
-	 * @param  Illuminate\View\ViewFinder  $finder
+	 * @param  Illuminate\View\ViewFinderInterface  $finder
 	 * @param  Illuminate\Events\Dispatcher  $events
 	 * @return void
 	 */
-	public function __construct(EngineResolver $engines, ViewFinder $finder, Dispatcher $events)
+	public function __construct(EngineResolver $engines, ViewFinderInterface $finder, Dispatcher $events)
 	{
 		$this->finder = $finder;
 		$this->events = $events;
@@ -131,26 +138,28 @@ class Environment {
 	 *
 	 * @param  string  $view
 	 * @param  Closure|string  $callback
-	 * @return void
+	 * @return Closure
 	 */
 	public function composer($view, $callback)
 	{
 		if ($callback instanceof Closure)
 		{
 			$this->events->listen('composing: '.$view, $callback);
+
+			return $callback;
 		}
 		elseif (is_string($callback))
 		{
-			$this->addClassComposer($view, $callback);
+			return $this->addClassComposer($view, $callback);
 		}
 	}
 
 	/**
 	 * Register a class based view composer.
 	 *
-	 * @param  string  $view
-	 * @param  string  $class
-	 * @return void
+	 * @param  string   $view
+	 * @param  string   $class
+	 * @return Closure
 	 */
 	protected function addClassComposer($view, $class)
 	{
@@ -161,10 +170,14 @@ class Environment {
 		// on the instance. This allows for convenient, testable view composers.
 		$container = $this->container;
 
-		$this->events->listen($name, function($view) use ($class, $container)
+		$callback = function($view) use ($class, $container)
 		{
 			return $container->make($class)->compose($view);
-		});
+		};
+
+		$this->events->listen($name, $callback);
+
+		return $callback;
 	}
 
 	/**
@@ -308,26 +321,26 @@ class Environment {
 	}
 
 	/**
-	 * Add a path to the array of view paths.
+	 * Add a location to the array of view locations.
 	 *
-	 * @param  string  $path
+	 * @param  string  $location
 	 * @return void
 	 */
-	public function addPath($path)
+	public function addLocation($location)
 	{
-		$this->finder->addPath($path);
+		$this->finder->addLocation($location);
 	}
 
 	/**
 	 * Add a new namespace to the loader.
 	 *
 	 * @param  string  $namespace
-	 * @param  string  $hint
+	 * @param  string|array  $hints
 	 * @return void
 	 */
-	public function addNamespace($namespace, $hint)
+	public function addNamespace($namespace, $hints)
 	{
-		$this->finder->addNamespace($namespace, $hint);
+		$this->finder->addNamespace($namespace, $hints);
 	}
 
 	/**
@@ -339,6 +352,8 @@ class Environment {
 	 */
 	public function addExtension($extension, $engine)
 	{
+		$this->finder->addExtension($extension);
+
 		$this->extensions[$extension] = $engine;
 	}
 

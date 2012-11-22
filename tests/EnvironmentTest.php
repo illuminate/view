@@ -11,6 +11,53 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testMakeCreatesNewViewInstanceWithProperPathAndEngine()
+	{
+		$env = $this->getEnvironment();
+		$env->getFinder()->shouldReceive('find')->once()->with('view')->andReturn('path.php');
+		$env->getEngineResolver()->shouldReceive('resolve')->once()->with('php')->andReturn($engine = m::mock('Illuminate\View\Engines\EngineInterface'));
+		$env->getFinder()->shouldReceive('addExtension')->once()->with('php');
+		$env->addExtension('php', 'php');
+		$view = $env->make('view', array('data'));
+
+		$this->assertTrue($engine === $view->getEngine());
+	}
+
+
+	public function testComposersAreProperlyRegistered()
+	{
+		$env = $this->getEnvironment();
+		$env->getDispatcher()->shouldReceive('listen')->once()->with('composing: foo', m::type('Closure'));
+		$callback = $env->composer('foo', function() { return 'bar'; });
+
+		$this->assertEquals('bar', $callback());
+	}
+
+
+	public function testClassCallbacks()
+	{
+		$env = $this->getEnvironment();
+		$env->getDispatcher()->shouldReceive('listen')->once()->with('composing: foo', m::type('Closure'));
+		$env->setContainer($container = m::mock('Illuminate\Container'));
+		$container->shouldReceive('make')->once()->with('FooComposer')->andReturn($composer = m::mock('StdClass'));
+		$composer->shouldReceive('compose')->once()->with('view')->andReturn('composed');
+		$callback = $env->composer('foo', 'FooComposer');
+
+		$this->assertEquals('composed', $callback('view'));
+	}
+
+
+	public function testCallComposerCallsProperEvent()
+	{
+		$env = $this->getEnvironment();
+		$view = m::mock('Illuminate\View\View');
+		$view->shouldReceive('getName')->once()->andReturn('name');
+		$env->getDispatcher()->shouldReceive('fire')->once()->with('composing: name', array($view));
+
+		$env->callComposer($view);
+	}
+
+
 	public function testRenderCountHandling()
 	{
 		$env = $this->getEnvironment();
@@ -87,7 +134,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	{
 		return new Environment(
 			m::mock('Illuminate\View\Engines\EngineResolver'),
-			m::mock('Illuminate\View\ViewFinder'),
+			m::mock('Illuminate\View\ViewFinderInterface'),
 			m::mock('Illuminate\Events\Dispatcher')
 		);
 	}
