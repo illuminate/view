@@ -175,6 +175,9 @@ class Environment {
 			return $container->make($class)->compose($view);
 		};
 
+		// Once we've created a function to handle each class callback we'll register
+		// it with an event dispatcher so that it will be called when the composer
+		// event is fired for the view, and the composers will be resolved then.
 		$this->events->listen($name, $callback);
 
 		return $callback;
@@ -346,13 +349,19 @@ class Environment {
 	/**
 	 * Register a valid view extension and its engine.
 	 *
-	 * @param  string  $extension
-	 * @param  string  $engine
+	 * @param  string   $extension
+	 * @param  string   $engine
+	 * @param  Closure  $resolver
 	 * @return void
 	 */
-	public function addExtension($extension, $engine)
+	public function addExtension($extension, $engine, $resolver = null)
 	{
 		$this->finder->addExtension($extension);
+
+		if (isset($resolver))
+		{
+			$this->resolver->register($extension, $resolver);
+		}
 
 		$this->extensions[$extension] = $engine;
 	}
