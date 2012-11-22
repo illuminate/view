@@ -19,4 +19,46 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(array('foo' => 'bar', 'baz' => 'boom'), $view->getData());
 	}
 
+
+	public function testRenderProperlyRendersView()
+	{
+		$view = $this->getView();
+		$view->getEnvironment()->shouldReceive('incrementRender')->once();
+		$view->getEnvironment()->shouldReceive('callComposer')->once()->with($view);
+		$view->getEnvironment()->shouldReceive('getShared')->once()->andReturn(array('shared' => 'foo'));
+		$view->getEngine()->shouldReceive('get')->once()->with('path', array('foo' => 'bar', 'shared' => 'foo'))->andReturn('contents');
+		$view->getEnvironment()->shouldReceive('decrementRender')->once();
+		$view->getEnvironment()->shouldReceive('doneRendering')->once()->andReturn(true);
+		$view->getEnvironment()->shouldReceive('flushSections')->once();
+
+		$this->assertEquals('contents', $view->render());
+	}
+
+
+	public function testSectionsAreNotFlushedWhenNotDoneRendering()
+	{
+		$view = $this->getView();
+		$view->getEnvironment()->shouldReceive('incrementRender')->once();
+		$view->getEnvironment()->shouldReceive('callComposer')->once()->with($view);
+		$view->getEnvironment()->shouldReceive('getShared')->once()->andReturn(array('shared' => 'foo'));
+		$view->getEngine()->shouldReceive('get')->once()->with('path', array('foo' => 'bar', 'shared' => 'foo'))->andReturn('contents');
+		$view->getEnvironment()->shouldReceive('decrementRender')->once();
+		$view->getEnvironment()->shouldReceive('doneRendering')->once()->andReturn(false);
+		$view->getEnvironment()->shouldReceive('flushSections')->never();
+
+		$this->assertEquals('contents', $view->render());
+	}
+
+
+	protected function getView()
+	{
+		return new View(
+			m::mock('Illuminate\View\Environment'),
+			m::mock('Illuminate\View\Engines\EngineInterface'),
+			'view',
+			'path',
+			array('foo' => 'bar')
+		);
+	}
+
 }

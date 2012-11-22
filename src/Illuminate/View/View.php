@@ -78,11 +78,11 @@ class View implements ArrayAccess, Renderable {
 
 		$contents = $this->getContents();
 
-		$env->decrementRender();
-
 		// Once we've finished rendering the view, we'll decrement the render count
 		// then if we are at the bottom of the stack we'll flush out sections as
 		// they might interfere with totally separate view's evaluations later.
+		$env->decrementRender();
+
 		if ($env->doneRendering()) $env->flushSections();
 
 		return $contents;
@@ -119,6 +119,16 @@ class View implements ArrayAccess, Renderable {
 		}
 		
 		return $this;
+	}
+
+	/**
+	 * Get the view environment instance.
+	 *
+	 * @return Illuminate\View\Environment
+	 */
+	public function getEnvironment()
+	{
+		return $this->environment;
 	}
 
 	/**
@@ -159,6 +169,17 @@ class View implements ArrayAccess, Renderable {
 	public function getPath()
 	{
 		return $this->path;
+	}
+
+	/**
+	 * Set the path to the view.
+	 *
+	 * @param  string  $path
+	 * @return void
+	 */
+	public function setPath($path)
+	{
+		$this->path = $path;
 	}
 
 	/**
