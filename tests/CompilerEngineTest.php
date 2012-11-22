@@ -14,11 +14,10 @@ class CompilerEngineTest extends PHPUnit_Framework_TestCase {
 	public function testViewsMayBeRecompiledAndRendered()
 	{
 		$engine = $this->getEngine();
-		$engine->getFilesystem()->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/foo.php')->andReturn(true);
 		$engine->getCompiler()->shouldReceive('getCompiledPath')->with(__DIR__.'/fixtures/foo.php')->andReturn(__DIR__.'/fixtures/basic.php');
 		$engine->getCompiler()->shouldReceive('isExpired')->once()->with(__DIR__.'/fixtures/foo.php')->andReturn(true);
 		$engine->getCompiler()->shouldReceive('compile')->once()->with(__DIR__.'/fixtures/foo.php');;
-		$results = $engine->get(m::mock('Illuminate\View\Environment'), 'foo');
+		$results = $engine->get(__DIR__.'/fixtures/foo.php');
 
 		$this->assertEquals('Hello World', $results);
 	}
@@ -27,11 +26,10 @@ class CompilerEngineTest extends PHPUnit_Framework_TestCase {
 	public function testViewsAreNotRecompiledIfTheyAreNotExpired()
 	{
 		$engine = $this->getEngine();
-		$engine->getFilesystem()->shouldReceive('exists')->once()->with(__DIR__.'/fixtures/foo.php')->andReturn(true);
 		$engine->getCompiler()->shouldReceive('getCompiledPath')->with(__DIR__.'/fixtures/foo.php')->andReturn(__DIR__.'/fixtures/basic.php');
 		$engine->getCompiler()->shouldReceive('isExpired')->once()->andReturn(false);
 		$engine->getCompiler()->shouldReceive('compile')->never();
-		$results = $engine->get(m::mock('Illuminate\View\Environment'), 'foo');
+		$results = $engine->get(__DIR__.'/fixtures/foo.php');
 
 		$this->assertEquals('Hello World', $results);
 	}
@@ -39,7 +37,7 @@ class CompilerEngineTest extends PHPUnit_Framework_TestCase {
 
 	protected function getEngine()
 	{
-		return new CompilerEngine(m::mock('Illuminate\View\Compilers\CompilerInterface'), m::mock('Illuminate\Filesystem'), array(__DIR__.'/fixtures'));
+		return new CompilerEngine(m::mock('Illuminate\View\Compilers\CompilerInterface'));
 	}
 
 }

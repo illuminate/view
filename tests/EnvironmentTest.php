@@ -11,60 +11,86 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	}
 
 
-	public function testEnvironmentCorrectlyCallsEngine()
-	{
-		$engine = m::mock('Illuminate\View\Engines\EngineInterface');
-		$events = m::mock('Illuminate\Events\Dispatcher');
-		$env = new Environment($engine, $events);
-		$env->share('baz', 'breeze');
-		$engine->shouldReceive('get')->once()->with($env, 'foo.bar', array('foo' => 'bar', '__env' => $env, 'baz' => 'breeze'))->andReturn('view');
-		$view = $env->make('foo.bar', array('foo' => 'bar'));
-		$events->shouldReceive('fire')->once()->with('composing: foo.bar', array($view));
-		$results = $view->render();
-
-		$this->assertEquals('view', $results);
-	}
-
-
-	public function testClassComposersAreRegisteredCorrectly()
-	{
-		$engine = m::mock('Illuminate\View\Engines\EngineInterface');
-		$events = new Illuminate\Events\Dispatcher;
-		$env = new Environment($engine, $events);
-		$env->setContainer($container = new Illuminate\Container);
-		$engine->shouldReceive('get')->once()->with($env, 'foo.bar', array('__env' => $env))->andReturn('view');
-		$view = $env->make('foo.bar');
-		$env->composer('foo.bar', 'FooComposer');
-		$mockComposer = m::mock('StdClass');
-		$container['FooComposer'] = $container->share(function() use ($mockComposer)
-		{
-			return $mockComposer;
-		});
-		$mockComposer->shouldReceive('compose')->once()->with($view);
-
-		$results = $view->render();
-
-		$this->assertEquals('view', $results);	
-	}
-
-
-	public function testAddingNamespaceCallsEngine()
-	{
-		$engine = m::mock('Illuminate\View\Engines\EngineInterface');
-		$events = m::mock('Illuminate\Events\Dispatcher');
-		$env = new Environment($engine, $events);
-		$engine->shouldReceive('addNamespace')->once()->with('foo', 'bar');
-		$env->addNamespace('foo', 'bar');
-	}
-
-
 	public function testRenderCountHandling()
 	{
-		$env = new Environment(m::mock('Illuminate\View\Engines\EngineInterface'), m::mock('Illuminate\Events\Dispatcher'));
+		$env = $this->getEnvironment();
 		$env->incrementRender();
 		$this->assertFalse($env->doneRendering());
 		$env->decrementRender();
 		$this->assertTrue($env->doneRendering());
+	}
+
+
+	public function testBasicSectionHandling()
+	{
+		$environment = $this->getEnvironment();
+		$environment->startSection('foo');
+		echo 'hi';
+		$environment->stopSection();
+		$this->assertEquals('hi', $environment->yield('foo'));
+	}
+
+
+	public function testSectionExtending()
+	{
+		$environment = $this->getEnvironment();
+		$environment->startSection('foo');
+		echo 'hi @parent';
+		$environment->stopSection();
+		$environment->startSection('foo');
+		echo 'there';
+		$environment->stopSection();
+		$this->assertEquals('hi there', $environment->yield('foo'));	
+	}
+
+
+	public function testYieldSectionStopsAndYields()
+	{
+		$environment = $this->getEnvironment();
+		$environment->startSection('foo');
+		echo 'hi';
+		$this->assertEquals('hi', $environment->yieldSection());
+	}
+
+
+	public function testInjectStartsSectionWithContent()
+	{
+		$environment = $this->getEnvironment();
+		$environment->inject('foo', 'hi');
+		$this->assertEquals('hi', $environment->yield('foo'));
+	}
+
+
+	public function testEmptyStringIsReturnedForNonSections()
+	{
+		$environment = $this->getEnvironment();
+		$this->assertEquals('', $environment->yield('foo'));
+	}
+
+
+	public function testSectionFlushing()
+	{
+		$environment = $this->getEnvironment();
+		$environment->startSection('foo');
+		echo 'hi';
+		$environment->stopSection();
+
+		$this->assertEquals(1, count($environment->getSections()));
+
+		$environment->flushSections();
+
+		$this->assertEquals(0, count($environment->getSections()));
+	}
+
+
+	protected function getEnvironment()
+	{
+		return new Environment(
+			m::mock('Illuminate\View\Engines\EngineResolver'),
+			m::mock('Illuminate\Events\Dispatcher'),
+			m::mock('Illuminate\Filesystem'),
+			array(__DIR__)
+		);
 	}
 
 }

@@ -1,17 +1,24 @@
 <?php namespace Illuminate\View;
 
 use ArrayAccess;
+use Illuminate\View\Engines\EngineInterface;
 use Illuminate\Support\RenderableInterface as Renderable;
-use Illuminate\View\Engines\SectionableInterface as Sectionable;
 
 class View implements ArrayAccess, Renderable {
 
 	/**
-	 * The environment instance.
+	 * The view environment instance.
 	 *
 	 * @var Illuminate\View\Environment
 	 */
 	protected $environment;
+
+	/**
+	 * The engine implementation.
+	 *
+	 * @var Illuminate\View\Engines\EngineInterface
+	 */
+	protected $engine;
 
 	/**
 	 * The name of the view.
@@ -28,17 +35,28 @@ class View implements ArrayAccess, Renderable {
 	protected $data;
 
 	/**
+	 * The path to the view file.
+	 *
+	 * @var string
+	 */
+	protected $path;
+
+	/**
 	 * Create a new view instance.
 	 *
 	 * @param  Illuminate\View\Environment  $environment
+	 * @param  Illuminate\View\Engines\EngineInterface  $engine
 	 * @param  string  $view
+	 * @param  string  $path
 	 * @param  array   $data
 	 * @return void
 	 */
-	public function __construct(Environment $environment, $view, array $data = array())
+	public function __construct(Environment $environment, EngineInterface $engine, $view, $path, array $data = array())
 	{
 		$this->view = $view;
+		$this->path = $path;
 		$this->data = $data;
+		$this->engine = $engine;
 		$this->environment = $environment;
 	}
 
@@ -65,10 +83,7 @@ class View implements ArrayAccess, Renderable {
 		// Once we've finished rendering the view, we'll decrement the render count
 		// then if we are at the bottom of the stack we'll flush out sections as
 		// they might interfere with totally separate view's evaluations later.
-		if ($env->doneRendering() and $env->isSectionable())
-		{
-			$env->getEngine()->flushSections();
-		}
+		if ($env->doneRendering()) $env->flushSections();
 
 		return $contents;
 	}
@@ -82,7 +97,7 @@ class View implements ArrayAccess, Renderable {
 	{
 		$data = array_merge($this->environment->getShared(), $this->data);
 
-		return $this->environment->get($this->environment, $this->view, $data);
+		return $this->engine->get($this->path, $data);
 	}
 
 	/**
@@ -107,6 +122,16 @@ class View implements ArrayAccess, Renderable {
 	}
 
 	/**
+	 * Get the view's rendering engine.
+	 *
+	 * @return Illuminate\View\Engines\EngineInterface
+	 */
+	public function getEngine()
+	{
+		return $this->engine;
+	}
+
+	/**
 	 * Get the name of the view.
 	 *
 	 * @return string
@@ -124,6 +149,16 @@ class View implements ArrayAccess, Renderable {
 	public function getData()
 	{
 		return $this->data;
+	}
+
+	/**
+	 * Get the path to the view file.
+	 *
+	 * @return string
+	 */
+	public function getPath()
+	{
+		return $this->path;
 	}
 
 	/**
@@ -178,14 +213,7 @@ class View implements ArrayAccess, Renderable {
 	 */
 	public function __toString()
 	{
-		try
-		{
-			return $this->render();
-		}
-		catch (\Exception $e)
-		{
-			$this->environment->handleError($e);
-		}
+		return $this->render();
 	}
 
 }

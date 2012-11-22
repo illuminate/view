@@ -1,7 +1,5 @@
 <?php namespace Illuminate\View\Engines;
 
-use Illuminate\Filesystem;
-use Illuminate\View\Environment;
 use Illuminate\View\Compilers\CompilerInterface;
 
 class CompilerEngine extends PhpEngine {
@@ -17,16 +15,11 @@ class CompilerEngine extends PhpEngine {
 	 * Create a new Blade view engine instance.
 	 *
 	 * @param  Illuminate\View\Compilers\CompilerInterface  $compiler
-	 * @param  Illuminate\Filesystem  $files
-	 * @param  array   $paths
-	 * @param  string  $extension
 	 * @return void
 	 */
-	public function __construct(CompilerInterface $compiler, Filesystem $files, array $paths, $extension = '.php')
+	public function __construct(CompilerInterface $compiler)
 	{
 		$this->compiler = $compiler;
-
-		parent::__construct($files, $paths, $extension);
 	}
 
 	/**
@@ -37,12 +30,8 @@ class CompilerEngine extends PhpEngine {
 	 * @param  array   $data
 	 * @return string
 	 */
-	public function get(Environment $environment, $view, array $data = array())
+	public function get($path, array $data = array())
 	{
-		$this->lastRendered = $view;
-
-		$path = $this->findView($view);
-
 		// If this given view has expired, which means it has simply been edited since
 		// it was last compiled, we will re-compile the views so we can evaluate a
 		// fresh copy of the view. We'll pass the compiler the path of the view.

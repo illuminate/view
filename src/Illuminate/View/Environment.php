@@ -2,17 +2,18 @@
 
 use Closure;
 use Illuminate\Container;
+use Illuminate\Filesystem;
 use Illuminate\Events\Dispatcher;
-use Illuminate\View\Engines\SectionableInterface;
+use Illuminate\View\Engines\EngineResolver;
 
 class Environment {
 
 	/**
 	 * The engine implmentation.
 	 *
-	 * @var Illuminate\View\Engines\EngineInterface
+	 * @var Illuminate\View\Engines\EngineResolver
 	 */
-	protected $engine;
+	protected $engines;
 
 	/**
 	 * The event dispatcher instance.
@@ -22,18 +23,18 @@ class Environment {
 	protected $events;
 
 	/**
-	 * Data that should be available to all templates.
+	 * The filesystem instance.
 	 *
-	 * @var array
+	 * @var Illuminate\Filesystem
 	 */
-	protected $shared = array();
+	protected $files;
 
 	/**
-	 * The view composer events.
+	 * All of the active view paths.
 	 *
 	 * @var array
 	 */
-	protected $composers = array();
+	protected $paths = array();
 
 	/**
 	 * The IoC container instance.
@@ -43,11 +44,39 @@ class Environment {
 	protected $container;
 
 	/**
-	 * The error handler callback.
+	 * Data that should be available to all templates.
 	 *
-	 * @var Closure
+	 * @var array
 	 */
-	protected $errorHandler;
+	protected $shared = array();
+
+	/**
+	 * All of the namesapce hint paths.
+	 *
+	 * @var array
+	 */
+	protected $hints = array();
+
+	/**
+	 * The view composer events.
+	 *
+	 * @var array
+	 */
+	protected $composers = array();
+
+	/**
+	 * All of the finished, captured sections.
+	 *
+	 * @var array
+	 */
+	protected $sections = array();
+
+	/**
+	 * The stack of in-progress sections.
+	 *
+	 * @var array
+	 */
+	protected $sectionStack = array();
 
 	/**
 	 * The number of active rendering operations.
@@ -59,15 +88,18 @@ class Environment {
 	/**
 	 * Create a new view enviornment instance.
 	 *
-	 * @param  Illuminate\View\Engines\EngineInterface  $engine
+	 * @param  Illuminate\View\Engines\EngineResolver  $engines
 	 * @param  Illuminate\Events\Dispatcher  $events
+	 * @param  Illuminate\Filesystem  $files
+	 * @param  array  $paths
 	 * @return void
 	 */
-	public function __construct(Engines\EngineInterface $engine, Dispatcher $events)
+	public function __construct(EngineResolver $engines, Dispatcher $events, Filesystem $files, array $paths)
 	{
-		$this->engine = $engine;
-
+		$this->files = $files;
+		$this->paths = $paths;
 		$this->events = $events;
+		$this->engines = $engines;
 
 		$this->share('__env', $this);
 	}
@@ -81,7 +113,107 @@ class Environment {
 	 */
 	public function make($view, array $data = array())
 	{
-		return new View($this, $view, $data);
+		$path = $this->findView($view);
+
+		return new View($this, $this->getEngineFromPath($path), $view, $path, $data);
+	}
+
+	/**
+	 * Get the full path to a template.
+	 *
+	 * @param  string  $name
+	 * @return string
+	 */
+	public function findView($name)
+	{
+		if (strpos($name, '::') !== false) return $this->findNamedPathView($name);
+
+		return $this->findInPaths($name, $this->paths);
+	}
+
+	/**
+	 * Get the path to a template with a named path.
+	 *
+	 * @param  string  $name
+	 * @return string
+	 */
+	protected function findNamedPathView($name)
+	{
+		list($namespace, $view) = $this->getNamespaceSegments($name);
+
+		return $this->findInPaths($view, $this->hints[$namespace]);
+	}
+
+	/**
+	 * Get the segments of a template with a named path.
+	 *
+	 * @param  string  $name
+	 * @return array
+	 */
+	protected function getNamespaceSegments($name)
+	{
+		$segments = explode('::', $name);
+
+		if (count($segments) != 2)
+		{
+			throw new \InvalidArgumentException("View [$name] has an invalid name.");
+		}
+
+		if ( ! isset($this->hints[$segments[0]]))
+		{
+			throw new \InvalidArgumentException("No hint path defined for [{$segments[0]}].");
+		}
+
+		return $segments;
+	}
+
+	/**
+	 * Find the given view in the list of paths.
+	 *
+	 * @param  string  $name
+	 * @param  array   $paths
+	 * @return string
+	 */
+	protected function findInPaths($name, $paths)
+	{
+		foreach ((array) $paths as $path)
+		{
+			foreach ($this->getPossibleViewFiles($name) as $viewPath)
+			{
+				if ($this->files->exists($viewPath)) return $viewPath;
+			}
+		}
+
+		throw new \InvalidArgumentException("View [$name] not found.");
+	}
+
+	/**
+	 * Get an array of fully formatted possible view files.
+	 *
+	 *
+	 * @param  string  $name
+	 * @return array
+	 */
+	protected function getPossibleViewFiles($name)
+	{
+		return array_map(function($extension) use ($name)
+		{
+			return str_replace('.', '/', $name).'.'.$extension;
+
+		}, array_keys($this->extensions));
+	}
+
+	/**
+	 * Get the appropriate view engine for the given path.
+	 *
+	 * @param  string  $path
+	 * @return Illuminate\View\Engines\EngineInterface
+	 */
+	protected function getEngineFromPath($path)
+	{
+		$engine = $this->extensions[$this->files->extension($path)];
+
+		return $this->engines->resolve($engine);
 	}
 
 	/**
@@ -126,9 +258,9 @@ class Environment {
 	{
 		$name = 'composing: '.$view;
 
-		// When registering a class based view composer, we will simply resolve the
-		// class from the application IoC container then call the compose method
-		// on the instance. It allows for convenient, testable view composers.
+		// When registering a class based view "composer", we will simply resolve the
+		// classes from the application IoC container then call the compose method
+		// on the instance. This allows for convenient, testable view composers.
 		$container = $this->container;
 
 		$this->events->listen($name, function($view) use ($class, $container)
@@ -149,6 +281,128 @@ class Environment {
 	}
 
 	/**
+	 * Start injecting content into a section.
+	 *
+	 * @param  string  $section
+	 * @param  string  $content
+	 * @return void
+	 */
+	public function startSection($section, $content = '')
+	{
+		if ($content === '')
+		{
+			ob_start() and $this->sectionStack[] = $section;
+		}
+		else
+		{
+			$this->extendSection($section, $content);
+		}
+	}
+
+	/**
+	 * Inject inline content into a section.
+	 *
+	 * @param  string  $section
+	 * @param  string  $content
+	 * @return void
+	 */
+	public function inject($section, $content)
+	{
+		return $this->startSection($section, $content);
+	}
+
+	/**
+	 * Stop injecting content into a section and return its contents.
+	 *
+	 * @return string
+	 */
+	public function yieldSection()
+	{
+		return $this->yield($this->stopSection());
+	}
+
+	/**
+	 * Stop injecting content into a section.
+	 *
+	 * @return string
+	 */
+	public function stopSection()
+	{
+		$last = array_pop($this->sectionStack);
+
+		$this->extendSection($last, ob_get_clean());
+
+		return $last;
+	}
+
+	/**
+	 * Append content to a given section.
+	 *
+	 * @param  string  $section
+	 * @param  string  $content
+	 * @return void
+	 */
+	protected function extendSection($section, $content)
+	{
+		if (isset($this->sections[$section]))
+		{
+			$content = str_replace('@parent', $content, $this->sections[$section]);
+
+			$this->sections[$section] = $content;
+		}
+		else
+		{
+			$this->sections[$section] = $content;
+		}
+	}
+
+	/**
+	 * Get the string contents of a section.
+	 *
+	 * @param  string  $section
+	 * @return string
+	 */
+	public function yield($section)
+	{
+		return isset($this->sections[$section]) ? $this->sections[$section] : '';
+	}
+
+	/**
+	 * Flush all of the section contents.
+	 *
+	 * @return void
+	 */
+	public function flushSections()
+	{
+		$this->sections = array();
+
+		$this->sectionStack = array();
+	}
+
+	/**
+	 * Add a path to the array of view paths.
+	 *
+	 * @param  string  $path
+	 * @return void
+	 */
+	public function addPath($path)
+	{
+		$this->paths[] = $path;
+	}
+
+	/**
+	 * Register a valid view extension and its engine.
+	 *
+	 * @param  string  $extension
+	 * @param  string  $engine
+	 * @return void
+	 */
+	public function addExtension($extension, $engine)
+	{
+		$this->extensions[$extension] = $engine;
+	}
+
+	/**
 	 * Add a new namespace to the loader.
 	 *
 	 * @param  string  $namespace
@@ -157,7 +411,7 @@ class Environment {
 	 */
 	public function addNamespace($namespace, $hint)
 	{
-		return $this->engine->addNamespace($namespace, $hint);
+		$this->hints[$namespace] = $hint;
 	}
 
 	/**
@@ -191,47 +445,13 @@ class Environment {
 	}
 
 	/**
-	 * Determine if the engine is sectionable.
+	 * Get the engine resolver instance.
 	 *
-	 * @return bool
+	 * @return Illuminate\View\Engines\EngineResolver
 	 */
-	public function isSectionable()
+	public function getEngineResolver()
 	{
-		return $this->engine instanceof SectionableInterface;
-	}
-
-	/**
-	 * Handle the given exception with the error handler.
-	 *
-	 * @param  Exception  $e
-	 * @return void
-	 */
-	public function handleError(\Exception $e)
-	{
-		call_user_func($this->errorHandler, $e);
-
-		die;
-	}
-
-	/**
-	 * Set the error handler for the environment.
-	 *
-	 * @param  Closure  $callback
-	 * @return void
-	 */
-	public function setErrorHandler(Closure $callback)
-	{
-		$this->errorHandler = $callback;
-	}
-
-	/**
-	 * Get the engine implementation.
-	 *
-	 * @return Illuminate\View\Engines\EngineInterface
-	 */
-	public function getEngine()
-	{
-		return $this->engine;
+		return $this->engines;
 	}
 
 	/**
@@ -276,20 +496,13 @@ class Environment {
 	}
 
 	/**
-	 * Dynamically call methods on the view engine.
+	 * Get the entire array of sections.
 	 *
-	 * @param  string  $method
-	 * @param  array   $parameters
-	 * @return mixed
+	 * @return array
 	 */
-	public function __call($method, $parameters)
+	public function getSections()
 	{
-		if (method_exists($this->engine, $method))
-		{
-			return call_user_func_array(array($this->engine, $method), $parameters);
-		}
-
-		throw new \BadMethodCallException("Method [$method] does not exist.");
+		return $this->sections;
 	}
 
 }
