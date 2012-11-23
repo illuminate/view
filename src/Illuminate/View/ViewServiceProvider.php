@@ -95,7 +95,7 @@ class ViewServiceProvider extends ServiceProvider {
 	{
 		$app['view.finder'] = $app->share(function($app)
 		{
-			$paths = array($app['path'].'/views');
+			$paths = $app['config']['view.paths'];
 
 			return new FileViewFinder($app['files'], $paths);
 		});
