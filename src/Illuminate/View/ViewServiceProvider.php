@@ -149,4 +149,15 @@ class ViewServiceProvider extends ServiceProvider {
 		});
 	}
 
+	/**
+	 * Determine if the application session has errors.
+	 *
+	 * @param  Illuminate\Foundation\Application  $app
+	 * @return bool
+	 */
+	public function sessionHasErrors($app)
+	{
+		return isset($app['session']) and $app['session']->has('errors');
+	}
+
 }
