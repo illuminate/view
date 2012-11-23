@@ -47,7 +47,7 @@ class Environment {
 	 *
 	 * @var array
 	 */
-	protected $extensions = array('php' => 'php', 'blade.php' => 'blade');
+	protected $extensions = array('blade.php' => 'blade', 'php' => 'php');
 
 	/**
 	 * The view composer events.
@@ -116,9 +116,25 @@ class Environment {
 	 */
 	protected function getEngineFromPath($path)
 	{
-		$engine = $this->extensions[pathinfo($path, PATHINFO_EXTENSION)];
+		$engine = $this->extensions[$this->getExtension($path)];
 
 		return $this->engines->resolve($engine);
+	}
+
+	/**
+	 * Get the extension used by the view file.
+	 *
+	 * @param  string  $path
+	 * @return string
+	 */
+	protected function getExtension($path)
+	{
+		$extensions = array_keys($this->extensions);
+
+		return array_first($extensions, function($key, $value) use ($path)
+		{
+			return ends_with($path, $value);
+		});
 	}
 
 	/**
