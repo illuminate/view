@@ -376,7 +376,7 @@ class Environment {
 
 		if (isset($resolver))
 		{
-			$this->resolver->register($extension, $resolver);
+			$this->engines->register($engine, $resolver);
 		}
 
 		$this->extensions[$extension] = $engine;
