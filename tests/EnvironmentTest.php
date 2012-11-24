@@ -24,6 +24,24 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testEnvironmentAddsExtensionWithCustomResolver()
+	{
+		$environment = $this->getEnvironment();
+
+		$resolver = function(){};
+
+		$environment->getFinder()->shouldReceive('addExtension')->once()->with('foo');
+		$environment->getEngineResolver()->shouldReceive('register')->once()->with('bar', $resolver);
+		$environment->getFinder()->shouldReceive('find')->once()->with('view')->andReturn('path.foo');
+		$environment->getEngineResolver()->shouldReceive('resolve')->once()->with('bar')->andReturn($engine = m::mock('Illuminate\View\Engines\EngineInterface'));
+
+		$environment->addExtension('foo', 'bar', $resolver);
+
+		$view = $environment->make('view', array('data'));
+		$this->assertTrue($engine === $view->getEngine());
+	}
+
+
 	public function testComposersAreProperlyRegistered()
 	{
 		$env = $this->getEnvironment();
