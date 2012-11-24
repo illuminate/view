@@ -203,7 +203,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	{
 		$pattern = $this->createMatcher('each');
 
-		return preg_replace($pattern, '$1<?php echo $__env->showEach$2; ?>', $value);
+		return preg_replace($pattern, '$1<?php echo $__env->renderEach$2; ?>', $value);
 	}
 
 	/**

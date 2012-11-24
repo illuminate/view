@@ -175,8 +175,8 @@ breeze
 	public function testShowEachAreCompiled()
 	{
 		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
-		$this->assertEquals('<?php echo $__env->showEach(\'foo\', \'bar\'); ?>', $compiler->compileString('@each(\'foo\', \'bar\')'));
-		$this->assertEquals('<?php echo $__env->showEach(name(foo)); ?>', $compiler->compileString('@each(name(foo))'));
+		$this->assertEquals('<?php echo $__env->renderEach(\'foo\', \'bar\'); ?>', $compiler->compileString('@each(\'foo\', \'bar\')'));
+		$this->assertEquals('<?php echo $__env->renderEach(name(foo)); ?>', $compiler->compileString('@each(name(foo))'));
 	}
 
 
