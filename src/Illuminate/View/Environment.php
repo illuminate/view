@@ -117,7 +117,7 @@ class Environment {
 	 * @param  string  $empty
 	 * @return string
 	 */
-	public static function renderEach($view, array $data, $iterator, $empty = 'raw|')
+	public function renderEach($view, array $data, $iterator, $empty = 'raw|')
 	{
 		$result = '';
 

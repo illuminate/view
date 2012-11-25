@@ -24,6 +24,36 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testRenderEachCreatesViewForEachItemInArray()
+	{
+		$env = m::mock('Illuminate\View\Environment[make]', $this->getEnvironmentArgs());
+		$env->shouldReceive('make')->once()->with('foo', array('key' => 'bar', 'value' => 'baz'))->andReturn($mockView1 = m::mock('StdClass'));
+		$env->shouldReceive('make')->once()->with('foo', array('key' => 'breeze', 'value' => 'boom'))->andReturn($mockView2 = m::mock('StdClass'));
+		$mockView1->shouldReceive('render')->once()->andReturn('dayle');
+		$mockView2->shouldReceive('render')->once()->andReturn('rees');
+
+		$result = $env->renderEach('foo', array('bar' => 'baz', 'breeze' => 'boom'), 'value');
+
+		$this->assertEquals('daylerees', $result);
+	}
+
+
+	public function testEmptyViewsCanBeReturnedFromRenderEach()
+	{
+		$env = m::mock('Illuminate\View\Environment[make]', $this->getEnvironmentArgs());
+		$env->shouldReceive('make')->once()->with('foo')->andReturn($mockView = m::mock('StdClass'));
+		$mockView->shouldReceive('render')->once()->andReturn('empty');
+
+		$this->assertEquals('empty', $env->renderEach('view', array(), 'iterator', 'foo'));
+	}
+
+
+	public function testRawStrinsMayBeReturnedFromRenderEach()
+	{
+		$this->assertEquals('foo', $this->getEnvironment()->renderEach('foo', array(), 'item', 'raw|foo'));
+	}
+
+
 	public function testEnvironmentAddsExtensionWithCustomResolver()
 	{
 		$environment = $this->getEnvironment();
@@ -151,6 +181,16 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	protected function getEnvironment()
 	{
 		return new Environment(
+			m::mock('Illuminate\View\Engines\EngineResolver'),
+			m::mock('Illuminate\View\ViewFinderInterface'),
+			m::mock('Illuminate\Events\Dispatcher')
+		);
+	}
+
+
+	protected function getEnvironmentArgs()
+	{
+		return array(
 			m::mock('Illuminate\View\Engines\EngineResolver'),
 			m::mock('Illuminate\View\ViewFinderInterface'),
 			m::mock('Illuminate\Events\Dispatcher')
