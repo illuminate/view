@@ -31,7 +31,7 @@ class ViewServiceProvider extends ServiceProvider {
 	 */
 	public function registerEngineResolver()
 	{
-		list($me, $this) = array($this, $this->app);
+		list($me, $app) = array($this, $this->app);
 
 		$app['view.engine.resolver'] = $app->share(function($app) use ($me)
 		{
