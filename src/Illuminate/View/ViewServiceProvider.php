@@ -13,27 +13,25 @@ class ViewServiceProvider extends ServiceProvider {
 	/**
 	 * Register the service provider.
 	 *
-	 * @param  Illuminate\Foundation\Application  $app
 	 * @return void
 	 */
-	public function register($app)
+	public function register()
 	{
-		$this->registerEngineResolver($app);
+		$this->registerEngineResolver();
 
-		$this->registerViewFinder($app);
+		$this->registerViewFinder();
 
-		$this->registerEnvironment($app);
+		$this->registerEnvironment();
 	}
 
 	/**
 	 * Register the engine resolver instance.
 	 *
-	 * @param  Illuminate\Foundation\Application  $app
 	 * @return void
 	 */
-	public function registerEngineResolver($app)
+	public function registerEngineResolver()
 	{
-		$me = $this;
+		list($me, $this) = array($this, $this->app);
 
 		$app['view.engine.resolver'] = $app->share(function($app) use ($me)
 		{
@@ -44,7 +42,7 @@ class ViewServiceProvider extends ServiceProvider {
 			// on the extension of view files. We call a method for each engines.
 			foreach (array('php', 'blade') as $engine)
 			{
-				$me->{'register'.ucfirst($engine).'Engine'}($app, $resolver);
+				$me->{'register'.ucfirst($engine).'Engine'}($resolver);
 			}
 
 			return $resolver;
@@ -54,11 +52,10 @@ class ViewServiceProvider extends ServiceProvider {
 	/**
 	 * Register the PHP engine implementation.
 	 *
-	 * @param  Illuminate\Foundation\Application  $app
 	 * @param  Illuminate\View\Engines\EngineResolver  $resolver
 	 * @return void
 	 */
-	public function registerPhpEngine($app, $resolver)
+	public function registerPhpEngine($resolver)
 	{
 		$resolver->register('php', function() { return new PhpEngine; });
 	}
@@ -66,12 +63,13 @@ class ViewServiceProvider extends ServiceProvider {
 	/**
 	 * Register the Blade engine implementation.
 	 *
-	 * @param  Illuminate\Foundation\Application  $app
 	 * @param  Illuminate\View\Engines\EngineResolver  $resolver
 	 * @return void
 	 */
-	public function registerBladeEngine($app, $resolver)
-	{	
+	public function registerBladeEngine($resolver)
+	{
+		$app = $this->app;
+
 		$resolver->register('blade', function() use ($app)
 		{
 			$cache = $app['path'].'/storage/views';
@@ -88,12 +86,11 @@ class ViewServiceProvider extends ServiceProvider {
 	/**
 	 * Register the view finder implementation.
 	 *
-	 * @param  Illuminate\Foundation\Application  $app
 	 * @return void
 	 */
-	public function registerViewFinder($app)
+	public function registerViewFinder()
 	{
-		$app['view.finder'] = $app->share(function($app)
+		$this->app['view.finder'] = $this->app->share(function($app)
 		{
 			$paths = $app['config']['view.paths'];
 
@@ -104,14 +101,13 @@ class ViewServiceProvider extends ServiceProvider {
 	/**
 	 * Register the view environment.
 	 *
-	 * @param  Illuminate\Foundation\Application  $app
 	 * @return void
 	 */
-	public function registerEnvironment($app)
+	public function registerEnvironment()
 	{
 		$me = $this;
 
-		$app['view'] = $app->share(function($app) use ($me)
+		$this->app['view'] = $this->app->share(function($app) use ($me)
 		{
 			// Next we need to grab the engine resolver instance that will be used by the
 			// environment. The resolver will be used by an environment to get each of
