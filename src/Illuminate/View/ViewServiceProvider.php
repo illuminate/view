@@ -116,7 +116,9 @@ class ViewServiceProvider extends ServiceProvider {
 
 			$finder = $app['view.finder'];
 
-			$environment = new Environment($resolver, $finder, $app['events']);
+			$events = $app['events'];
+
+			$environment = new Environment($resolver, $finder, $events);
 
 			// If the current session has an "errors" variable bound to it, we will share
 			// its value with all view instances so the views can easily access errors
@@ -155,7 +157,13 @@ class ViewServiceProvider extends ServiceProvider {
 	 */
 	public function sessionHasErrors($app)
 	{
-		return isset($app['session']) and $app['session']->has('errors');
+		$config = $app['config']['session'];
+
+		if (isset($app['session']) and ! is_null($config['driver']))
+		{
+			return $app['session']->has('errors');
+		}
+
 	}
 
 }
