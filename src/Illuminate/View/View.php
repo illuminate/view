@@ -259,6 +259,28 @@ class View implements ArrayAccess, Renderable {
 	}
 
 	/**
+	 * Get a piece of data from the view.
+	 *
+	 * @return mixed
+	 */
+	public function __get($key)
+	{
+		return $this->data[$key];
+	}
+
+	/**
+	 * Set a piece of data on the view.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @return void
+	 */
+	public function __set($key, $value)
+	{
+		$this->with($key, $value);
+	}
+
+	/**
 	 * Get the string contents of the view.
 	 *
 	 * @return string
