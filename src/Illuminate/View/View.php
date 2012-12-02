@@ -95,9 +95,27 @@ class View implements ArrayAccess, Renderable {
 	 */
 	protected function getContents()
 	{
+		return $this->engine->get($this->path, $this->gatherData());
+	}
+
+	/**
+	 * Get the data bound to the view instance.
+	 *
+	 * @return array
+	 */
+	protected function gatherData()
+	{
 		$data = array_merge($this->environment->getShared(), $this->data);
 
-		return $this->engine->get($this->path, $data);
+		foreach ($data as $key => $value)
+		{
+			if ($value instanceof Rednerable)
+			{
+				$data[$key] = $value->render();
+			}
+		}
+
+		return $data;
 	}
 
 	/**
