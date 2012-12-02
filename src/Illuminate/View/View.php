@@ -109,7 +109,7 @@ class View implements ArrayAccess, Renderable {
 
 		foreach ($data as $key => $value)
 		{
-			if ($value instanceof Rednerable)
+			if ($value instanceof Renderable)
 			{
 				$data[$key] = $value->render();
 			}
