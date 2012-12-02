@@ -140,6 +140,19 @@ class View implements ArrayAccess, Renderable {
 	}
 
 	/**
+	 * Add a view instance to the view data.
+	 *
+	 * @param  string  $key
+	 * @param  string  $view
+	 * @param  array   $data
+	 * @return Illuminate\View\View
+	 */
+	public function nest($key, $view, array $data = array())
+	{
+		return $this->with($key, $this->environment->make($view, $data));
+	}
+
+	/**
 	 * Get the view environment instance.
 	 *
 	 * @return Illuminate\View\Environment

@@ -50,6 +50,16 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testViewNestBindsASubView()
+	{
+		$view = $this->getView();
+		$view->getEnvironment()->shouldReceive('make')->once()->with('foo', array('data'));
+		$result = $view->nest('key', 'foo', array('data'));
+
+		$this->assertInstanceOf('Illuminate\View\View', $result);
+	}
+
+
 	protected function getView()
 	{
 		return new View(
