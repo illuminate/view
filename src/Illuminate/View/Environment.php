@@ -8,7 +8,7 @@ use Illuminate\View\Engines\EngineResolver;
 class Environment {
 
 	/**
-	 * The engine implmentation.
+	 * The engine implementation.
 	 *
 	 * @var Illuminate\View\Engines\EngineResolver
 	 */
@@ -78,7 +78,7 @@ class Environment {
 	protected $renderCount = 0;
 
 	/**
-	 * Create a new view enviornment instance.
+	 * Create a new view environment instance.
 	 *
 	 * @param  Illuminate\View\Engines\EngineResolver  $engines
 	 * @param  Illuminate\View\ViewFinderInterface  $finder
