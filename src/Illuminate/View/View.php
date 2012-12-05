@@ -2,7 +2,7 @@
 
 use ArrayAccess;
 use Illuminate\View\Engines\EngineInterface;
-use Illuminate\Support\RenderableInterface as Renderable;
+use Illuminate\Support\Contracts\RenderableInterface as Renderable;
 
 class View implements ArrayAccess, Renderable {
 
