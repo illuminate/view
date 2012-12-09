@@ -66,6 +66,10 @@ class BladeCompilerTest extends PHPUnit_Framework_TestCase {
 	{
 		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
 		$this->assertEquals('<?php echo $name; ?>', $compiler->compileString('{{$name}}'));
+		$this->assertEquals('<?php echo $name; ?>', $compiler->compileString('{{ $name }}'));
+		$this->assertEquals('<?php echo $name; ?>', $compiler->compileString('{{
+			$name
+		}}'));
 	}
 
 
@@ -91,13 +95,13 @@ test';
 		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
 		$string = '{{--this is a comment--}}';
 		$expected = '<?php /* this is a comment */ ?>';
-		$this->assertEquals($expected, $compiler->compileString($string));	
+		$this->assertEquals($expected, $compiler->compileString($string));
 
 
 		$string = '{{--
 this is a comment
 --}}';
-		$expected = '<?php /* 
+		$expected = '<?php /*
 this is a comment
  */ ?>';
 		$this->assertEquals($expected, $compiler->compileString($string));
@@ -130,7 +134,7 @@ breeze
 <?php else: ?>
 boom
 <?php endif; ?>';
-		$this->assertEquals($expected, $compiler->compileString($string));	
+		$this->assertEquals($expected, $compiler->compileString($string));
 	}
 
 
@@ -147,7 +151,7 @@ breeze
 <?php elseif (boom(breeze)): ?>
 boom
 <?php endif; ?>';
-		$this->assertEquals($expected, $compiler->compileString($string));	
+		$this->assertEquals($expected, $compiler->compileString($string));
 	}
 
 
@@ -160,7 +164,7 @@ breeze
 		$expected = '<?php if ( ! (name(foo(bar)))): ?>
 breeze
 <?php endif; ?>';
-		$this->assertEquals($expected, $compiler->compileString($string));	
+		$this->assertEquals($expected, $compiler->compileString($string));
 	}
 
 
