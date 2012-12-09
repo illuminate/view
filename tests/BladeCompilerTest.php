@@ -101,7 +101,7 @@ test';
 		$string = '{{--
 this is a comment
 --}}';
-		$expected = '<?php /*
+		$expected = '<?php /* 
 this is a comment
  */ ?>';
 		$this->assertEquals($expected, $compiler->compileString($string));
