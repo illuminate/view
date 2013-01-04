@@ -100,7 +100,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 		$env = $this->getEnvironment();
 		$view = m::mock('Illuminate\View\View');
 		$view->shouldReceive('getName')->once()->andReturn('name');
-		$env->getDispatcher()->shouldReceive('fire')->once()->with('composing: name', array($view));
+		$env->getDispatcher()->shouldReceive('fire')->once()->with('composing: name', array('view' => $view));
 
 		$env->callComposer($view);
 	}
