@@ -230,9 +230,9 @@ class Environment {
 		// on the instance. This allows for convenient, testable view composers.
 		$container = $this->container;
 
-		$callback = function($view) use ($class, $container)
+		$callback = function($event) use ($class, $container)
 		{
-			return $container->make($class)->compose($view);
+			return $container->make($class)->compose($event);
 		};
 
 		// Once we've created a function to handle each class callback we'll register
