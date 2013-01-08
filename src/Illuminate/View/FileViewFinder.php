@@ -44,7 +44,7 @@ class FileViewFinder implements ViewFinderInterface {
 	{
 		$this->files = $files;
 		$this->paths = $paths;
-		
+
 		if (isset($extensions))
 		{
 			$this->extensions = $extensions;
@@ -187,6 +187,36 @@ class FileViewFinder implements ViewFinderInterface {
 	public function getFilesystem()
 	{
 		return $this->files;
+	}
+
+	/**
+	 * Get the active view paths.
+	 *
+	 * @return array
+	 */
+	public function getPaths()
+	{
+		return $this->paths;
+	}
+
+	/**
+	 * Get the namespace to file path hints.
+	 *
+	 * @return array
+	 */
+	public function getHints()
+	{
+		return $this->hints;
+	}
+
+	/**
+	 * Get registered extensions.
+	 *
+	 * @return array
+	 */
+	public function getExtensions()
+	{
+		return $this->extensions;
 	}
 
 }
