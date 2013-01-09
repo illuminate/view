@@ -39,10 +39,21 @@ class PhpEngine implements EngineInterface {
 		}
 		catch (\Exception $e)
 		{
-			ob_get_clean(); throw $e;
+			$this->handleViewException($e);
 		}
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Handle a view exception.
+	 *
+	 * @param  Exception  $e
+	 * @return void
+	 */
+	protected function handleViewException($e)
+	{
+		ob_get_clean(); throw $e;
 	}
 
 }
