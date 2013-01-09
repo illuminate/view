@@ -122,7 +122,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 		$environment->startSection('foo');
 		echo 'hi';
 		$environment->stopSection();
-		$this->assertEquals('hi', $environment->yield('foo'));
+		$this->assertEquals('hi', $environment->yieldContent('foo'));
 	}
 
 
@@ -135,7 +135,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 		$environment->startSection('foo');
 		echo 'there';
 		$environment->stopSection();
-		$this->assertEquals('hi there', $environment->yield('foo'));	
+		$this->assertEquals('hi there', $environment->yieldContent('foo'));	
 	}
 
 
@@ -152,14 +152,14 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	{
 		$environment = $this->getEnvironment();
 		$environment->inject('foo', 'hi');
-		$this->assertEquals('hi', $environment->yield('foo'));
+		$this->assertEquals('hi', $environment->yieldContent('foo'));
 	}
 
 
 	public function testEmptyStringIsReturnedForNonSections()
 	{
 		$environment = $this->getEnvironment();
-		$this->assertEquals('', $environment->yield('foo'));
+		$this->assertEquals('', $environment->yieldContent('foo'));
 	}
 
 

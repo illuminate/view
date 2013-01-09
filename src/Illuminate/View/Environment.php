@@ -292,7 +292,7 @@ class Environment {
 	 */
 	public function yieldSection()
 	{
-		return $this->yield($this->stopSection());
+		return $this->yieldContent($this->stopSection());
 	}
 
 	/**
@@ -336,7 +336,7 @@ class Environment {
 	 * @param  string  $section
 	 * @return string
 	 */
-	public function yield($section)
+	public function yieldContent($section)
 	{
 		return isset($this->sections[$section]) ? $this->sections[$section] : '';
 	}

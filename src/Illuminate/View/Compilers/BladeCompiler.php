@@ -216,7 +216,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	{
 		$pattern = $this->createMatcher('yield');
 
-		return preg_replace($pattern, '$1<?php echo $__env->yield$2; ?>', $value);
+		return preg_replace($pattern, '$1<?php echo $__env->yieldContent$2; ?>', $value);
 	}
 
 	/**

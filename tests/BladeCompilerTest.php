@@ -187,8 +187,8 @@ breeze
 	public function testYieldsAreCompiled()
 	{
 		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
-		$this->assertEquals('<?php echo $__env->yield(\'foo\'); ?>', $compiler->compileString('@yield(\'foo\')'));
-		$this->assertEquals('<?php echo $__env->yield(name(foo)); ?>', $compiler->compileString('@yield(name(foo))'));
+		$this->assertEquals('<?php echo $__env->yieldContent(\'foo\'); ?>', $compiler->compileString('@yield(\'foo\')'));
+		$this->assertEquals('<?php echo $__env->yieldContent(name(foo)); ?>', $compiler->compileString('@yield(name(foo))'));
 	}
 
 
