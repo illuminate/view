@@ -48,7 +48,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
 	}
 
 
-	public function testRawStrinsMayBeReturnedFromRenderEach()
+	public function testRawStringsMayBeReturnedFromRenderEach()
 	{
 		$this->assertEquals('foo', $this->getEnvironment()->renderEach('foo', array(), 'item', 'raw|foo'));
 	}
