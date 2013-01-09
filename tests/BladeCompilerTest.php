@@ -78,14 +78,14 @@ class BladeCompilerTest extends PHPUnit_Framework_TestCase {
 		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
 		$string = '@extends(\'foo\')
 test';
-		$expected = "test\r\n".'<?php echo $__env->make(\'foo\', $__data)->render(); ?>';
+		$expected = "test\r\n".'<?php echo $__env->make(\'foo\', array_except(get_defined_vars(), array(\'__data\', \'__path\')))->render(); ?>';
 		$this->assertEquals($expected, $compiler->compileString($string));
 
 
 		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
 		$string = '@extends(name(foo))
 test';
-		$expected = "test\r\n".'<?php echo $__env->make(name(foo), $__data)->render(); ?>';
+		$expected = "test\r\n".'<?php echo $__env->make(name(foo), array_except(get_defined_vars(), array(\'__data\', \'__path\')))->render(); ?>';
 		$this->assertEquals($expected, $compiler->compileString($string));
 	}
 
@@ -171,8 +171,8 @@ breeze
 	public function testIncludesAreCompiled()
 	{
 		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
-		$this->assertEquals('<?php echo $__env->make(\'foo\', $__data)->render(); ?>', $compiler->compileString('@include(\'foo\')'));
-		$this->assertEquals('<?php echo $__env->make(name(foo), $__data)->render(); ?>', $compiler->compileString('@include(name(foo))'));
+		$this->assertEquals('<?php echo $__env->make(\'foo\', array_except(get_defined_vars(), array(\'__data\', \'__path\')))->render(); ?>', $compiler->compileString('@include(\'foo\')'));
+		$this->assertEquals('<?php echo $__env->make(name(foo), array_except(get_defined_vars(), array(\'__data\', \'__path\')))->render(); ?>', $compiler->compileString('@include(name(foo))'));
 	}
 
 
