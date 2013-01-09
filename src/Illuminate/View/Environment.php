@@ -1,6 +1,7 @@
 <?php namespace Illuminate\View;
 
 use Closure;
+use Traversable;
 use Illuminate\Container;
 use Illuminate\Events\Dispatcher;
 use Illuminate\View\Engines\EngineResolver;
@@ -112,7 +113,7 @@ class Environment {
 	 * Get the rendered contents of a partial from a loop.
 	 *
 	 * @param  string  $view
-	 * @param  array   $data
+	 * @param  mixed   $data
 	 * @param  string  $iterator
 	 * @param  string  $empty
 	 * @return string
@@ -121,10 +122,10 @@ class Environment {
 	{
 		$result = '';
 
-		// If is actually data in the array, we will loop through the data and append
+		// If there is iterable data, we will loop through the data and append
 		// an instance of the partial view to the final result HTML passing in the
 		// iterated value of this data array, allowing the views to access them.
-		if (count($data) > 0)
+		if ( (is_array($data) || $data instanceof Traversable) && count($data) > 0 )
 		{
 			foreach ($data as $key => $value)
 			{
