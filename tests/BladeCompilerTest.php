@@ -214,6 +214,14 @@ breeze
 	}
 
 
+	public function testCustomExtensionsAreCompiled()
+	{
+		$compiler = new BladeCompiler($this->getFiles(), __DIR__);
+		$compiler->extend(function($value) { return str_replace('foo', 'bar', $value); });
+		$this->assertEquals('bar', $compiler->compileString('foo'));
+	}
+
+
 	protected function getFiles()
 	{
 		return m::mock('Illuminate\Filesystem');

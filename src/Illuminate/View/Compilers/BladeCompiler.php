@@ -1,8 +1,16 @@
 <?php namespace Illuminate\View\Compilers;
 
+use Closure;
 use Illuminate\Filesystem;
 
 class BladeCompiler extends Compiler implements CompilerInterface {
+
+	/**
+	 * All of the registered extensions.
+	 *
+	 * @var array
+	 */
+	protected $extensions = array();
 
 	/**
 	 * All of the available compiler functions.
@@ -10,6 +18,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 * @var array
 	 */
 	protected $compilers = array(
+		'Extensions',
 		'Extends',
 		'Comments',
 		'Echos',
@@ -53,6 +62,33 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 		foreach ($this->compilers as $compiler)
 		{
 			$value = $this->{"compile{$compiler}"}($value);
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Register a custom Blade compiler.
+	 *
+	 * @param  Closure  $compiler
+	 * @return void
+	 */
+	public function extend(Closure $compiler)
+	{
+		$this->extensions[] = $compiler;	
+	}
+
+	/**
+	 * Execute the user defined extensions.
+	 *
+	 * @param  string  $value
+	 * @return string
+	 */
+	protected function compileExtensions($value)
+	{
+		foreach ($this->extensions as $compiler)
+		{
+			$value = call_user_func($compiler, $value);
 		}
 
 		return $value;
