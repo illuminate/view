@@ -64,9 +64,9 @@ class CompilerEngine extends PhpEngine {
 	{
 		ob_get_clean();
 
-		$message = $e->getMessage()." [Real Path: {$this->lastViewPath}]";
+		$path = realpath($this->lastViewPath);
 
-		throw new \Exception($message, $e->getCode(), $e);
+		throw new \Exception($e->getMessage()." [Real Path: {$path}]", $e->getCode());
 	}
 
 	/**
