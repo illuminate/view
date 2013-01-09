@@ -30,9 +30,9 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 		'Includes',
 		'Each',
 		'Yields',
-		'Shows',
 		'SectionStart',
 		'SectionStop',
+		'Shows',
 	);
 
 	/**
