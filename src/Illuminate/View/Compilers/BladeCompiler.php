@@ -294,7 +294,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 		return preg_replace($pattern, '$1<?php $__env->stopSection(); ?>$2', $value);
 	}
 
-	/**
+		/**
 	 * Get the regular expression for a generic Blade function.
 	 *
 	 * @param  string  $function
@@ -302,7 +302,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	public function createMatcher($function)
 	{
-		return '/(?<!\w)(\s*)@'.$function.'(\s*\(.*\))/';
+		return '/(?<!\w)(\s*)@'.$function.'(\s*\([^\)]*\))/';
 	}
 
 	/**
@@ -313,7 +313,7 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	public function createOpenMatcher($function)
 	{
-		return '/(?<!\w)(\s*)@'.$function.'(\s*\(.*)\)/';
+		return '/(?<!\w)(\s*)@'.$function.'(\s*\([^\)]*)\)/';
 	}
 
 	/**
