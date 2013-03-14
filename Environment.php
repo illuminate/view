@@ -101,8 +101,13 @@ class Environment {
 	 * @param  array   $data
 	 * @return Illuminate\View\View
 	 */
-	public function make($view, array $data = array())
+	public function make($view, $data = array())
 	{
+		if (is_object($data))
+		{
+			$data = get_object_vars($data);
+		}
+		
 		$path = $this->finder->find($view);
 
 		return new View($this, $this->getEngineFromPath($path), $view, $path, $data);
