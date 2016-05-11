@@ -163,6 +163,17 @@ class FileViewFinder implements ViewFinderInterface
     }
 
     /**
+     * Prepend a location to the finder.
+     *
+     * @param  string  $location
+     * @return void
+     */
+    public function prependLocation($location)
+    {
+        array_unshift($this->paths, $location);
+    }
+    
+    /**
      * Add a namespace hint to the finder.
      *
      * @param  string  $namespace
