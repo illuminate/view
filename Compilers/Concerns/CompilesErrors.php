@@ -2,6 +2,9 @@
 
 namespace Illuminate\View\Compilers\Concerns;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+
 trait CompilesErrors
 {
     /**
@@ -12,11 +15,13 @@ trait CompilesErrors
      */
     protected function compileError($expression)
     {
-        $expression = $this->stripParentheses($expression);
+        i$expression = explode(',', $this->stripParentheses($expression));
+        $bag = Arr::get($expression, 0, 'default');
+        $attribute = trim(Arr::get($expression, 1), $expression);
 
-        return '<?php if ($errors->has('.$expression.')) :
+        return '<?php if ($errors->getBag('.$bag.')->has('.$attribute.')) :
 if (isset($message)) { $messageCache = $message; }
-$message = $errors->first('.$expression.'); ?>';
+$message = $errors->getBag('.$bag.')->first('.$attribute.'); ?>';
     }
 
     /**
