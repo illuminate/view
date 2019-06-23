@@ -16,7 +16,7 @@ trait CompilesErrors
     {
         $expression = explode(',', $this->stripParentheses($expression));
         $bag = Arr::get($expression, 0, 'default');
-        $attribute = trim(Arr::get($expression, 1), $expression);
+        $attribute = trim(Arr::get($expression, 1, $expression));
 
         return '<?php if ($errors->getBag('.$bag.')->has('.$attribute.')) :
 if (isset($message)) { $messageCache = $message; }
