@@ -15,7 +15,7 @@ trait CompilesErrors
      */
     protected function compileError($expression)
     {
-        i$expression = explode(',', $this->stripParentheses($expression));
+        $expression = explode(',', $this->stripParentheses($expression));
         $bag = Arr::get($expression, 0, 'default');
         $attribute = trim(Arr::get($expression, 1), $expression);
 
