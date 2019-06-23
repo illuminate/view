@@ -3,7 +3,6 @@
 namespace Illuminate\View\Compilers\Concerns;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 trait CompilesErrors
 {
