@@ -54,30 +54,21 @@ class PhpEngine implements Engine
         // We'll evaluate the contents of the view inside a try/catch block so we can
         // flush out any stray output that might get out before an error occurs or
         // an exception is thrown. This prevents any partial views from leaking.
+        $anythingCrashed = true;
         try {
-            $this->files->getRequire($path, $data);
-        } catch (Throwable $e) {
-            $this->handleViewException($e, $obLevel);
+            include $__path;
+            $anythingCrashed = false;
+        } finally {
+            // Avoiding catch, as that will require to throw $e again, and that new "throw" will damage
+            // the stacktrace of the $e: instead of having a file/line where it crashed it will have a place
+            // in PhpEngine where it was re-thrown, not much useful.
+            if ($anythingCrashed) {
+                while (ob_get_level() > $obLevel) {
+                    ob_end_clean();
+                }
+            }
         }
 
         return ltrim(ob_get_clean());
-    }
-
-    /**
-     * Handle a view exception.
-     *
-     * @param  \Throwable  $e
-     * @param  int  $obLevel
-     * @return void
-     *
-     * @throws \Throwable
-     */
-    protected function handleViewException(Throwable $e, $obLevel)
-    {
-        while (ob_get_level() > $obLevel) {
-            ob_end_clean();
-        }
-
-        throw $e;
     }
 }
